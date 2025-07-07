@@ -1,44 +1,3 @@
-function setVelocity(player, playerControls) {
-  if (playerControls.left.isDown) {
-    player.setVelocityX(-160);
-  } else if (playerControls.right.isDown) {
-    player.setVelocityX(160);
-  } else {
-    player.setVelocityX(0);
-  }
-
-  if (playerControls.up.isDown && player.blocked.down) {
-    player.setVelocityY(-400);
-  }
-}
-
-function setDirection(one, other) {
-  const pVelX = one.body.velocity.x;
-  if (Math.abs(pVelX) > 5) {
-    one.setFlipX(pVelX < 0);
-  } else {
-    one.setFlipX(one.x > other.x);
-  }
-}
-
-// function handleAttack(pThis, controlsKey, canAttackKey, hitboxKey, playerKey, hitLandedKey) {
-//   if (Phaser.Input.Keyboard.JustDown(pThis[controlsKey].attack) && pThis[canAttackKey]) {
-//     pThis[canAttackKey] = false;
-
-//     const flip = pThis[playerKey].flipX ? -1 : 1;
-//     pThis[hitboxKey].setPosition(pThis[playerKey].x + (flip * 40), pThis[playerKey].y);
-//     pThis[hitboxKey].setVisible(true);
-
-//     pThis[hitLandedKey] = false;
-//     pThis.time.delayedCall(pThis.attackDuration, () => {
-//       pThis[hitboxKey].setVisible(false);
-//     })
-//     pThis.time.delayedCall(pThis.attackCooldown, () => {
-//       pThis[canAttackKey] = true;
-//     })
-//   }
-// }
-
 export default class MainScene extends Phaser.Scene {
   constructor() {
     super('MainScene');
@@ -61,7 +20,6 @@ export default class MainScene extends Phaser.Scene {
     this.physics.add.collider(this.player1, this.ground);
     this.physics.add.collider(this.player2, this.ground);
 
-    // note that the player has to be added to the physics engine in order to access setBounce 
     this.player1.body.setBounce(0.2);
     this.player2.body.setBounce(0.2);
 
@@ -82,78 +40,124 @@ export default class MainScene extends Phaser.Scene {
     this.attackDuration = 150;
     this.attackCooldown = 500;
 
-    this.p1CanAttack = true;
-    this.p1HitLanded = false;
+    this.p1CanAttackRef = { value: true };
+    this.p1HitLandedRef = { value: false };
     this.p1Hitbox = this.add.rectangle(0, 0, 40, 30, 0xffff00, 0.5);
     this.physics.add.existing(this.p1Hitbox);
     this.p1Hitbox.body.setAllowGravity(false);
     this.p1Hitbox.body.setImmovable(true);
     this.p1Hitbox.setVisible(false);
 
-    this.p2HitLanded = false;
-    this.p2CanAttack = true;
+    this.p2CanAttackRef = { value: true };
+    this.p2HitLandedRef = { value: false };
     this.p2Hitbox = this.add.rectangle(0, 0, 40, 30, 0xff00ff, 0.5);
     this.physics.add.existing(this.p2Hitbox);
     this.p2Hitbox.body.setAllowGravity(false);
     this.p2Hitbox.body.setImmovable(true);
     this.p2Hitbox.setVisible(false);
 
+
     this.physics.add.overlap(this.p1Hitbox, this.player2, () => {
-      if (!this.p1HitLanded) {
+      if (!this.p1HitLandedRef.value) {
         console.log('Player 1 hit Player 2!');
-        this.p1HitLanded = true;
+        this.p1HitLandedRef.value = true;
       }
     });
 
     this.physics.add.overlap(this.p2Hitbox, this.player1, () => {
-      if (!this.p2HitLanded) {
+      if (!this.p2HitLandedRef.value) {
         console.log('Player 2 hit Player 1!');
-        this.p2HitLanded = true;
+        this.p2HitLandedRef.value = true;
       }
     });
   }
 
+  setVelocity(player, playerControls) {
+    if (playerControls.left.isDown) {
+      player.setVelocityX(-160);
+    } else if (playerControls.right.isDown) {
+      player.setVelocityX(160);
+    } else {
+      player.setVelocityX(0);
+    }
+
+    if (playerControls.up.isDown && player.blocked.down) {
+      player.setVelocityY(-400);
+    }
+  }
+
+  setDirection(one, other) {
+    const pVelX = one.body.velocity.x;
+    if (Math.abs(pVelX) > 5) {
+      one.setFlipX(pVelX < 0);
+    } else {
+      one.setFlipX(one.x > other.x);
+    }
+  }
+
+  handleAttack({
+    attacker,
+    defender,
+    hitbox,
+    attackKey,
+    canAttackFlag,
+    hitLandedFlag,
+    flipXMultiplier,
+    scene
+  }) {
+    if (Phaser.Input.Keyboard.JustDown(attackKey) && canAttackFlag.value) {
+      canAttackFlag.value = false;
+      hitLandedFlag.value = false;
+
+      const direction = attacker.flipX ? -1 : 1;
+      hitbox.setPosition(attacker.x + (direction * flipXMultiplier), attacker.y);
+      hitbox.setVisible(true);
+
+      hitbox.body.enable = true;
+
+      scene.physics.add.overlap(hitbox, defender, () => {
+        if (!hitLandedFlag.value) {
+          console.log(`${attacker.texture.key} hit ${defender.texture.key}`);
+          hitLandedFlag.value = true;
+        }
+      });
+
+      scene.time.delayedCall(150, () => {
+        hitbox.setVisible(false);
+      });
+
+      scene.time.delayedCall(500, () => {
+        canAttackFlag.value = true;
+      });
+    }
+  }
+
   update() {
-    setVelocity(this.player1.body, this.p1Controls);
-    setVelocity(this.player2.body, this.p2Controls);
+    this.setVelocity(this.player1.body, this.p1Controls);
+    this.setVelocity(this.player2.body, this.p2Controls);
 
-    setDirection(this.player1, this.player2);
-    setDirection(this.player2, this.player1);
+    this.setDirection(this.player1, this.player2);
+    this.setDirection(this.player2, this.player1);
 
-    // TODO: remove duplication
-    // handleAttack(this, "p1Controls", "p1CanAttack", "p1Hitbox", "player1", "p1HitLandedKey");
-    if (Phaser.Input.Keyboard.JustDown(this.p1Controls.attack) && this.p1CanAttack) {
-      this.p1CanAttack = false;
-
-      const flip = this.player1.flipX ? -1 : 1;
-      this.p1Hitbox.setPosition(this.player1.x + (flip * 40), this.player1.y);
-      this.p1Hitbox.setVisible(true);
-
-      this.p1HitLanded = false;
-      this.time.delayedCall(this.attackDuration, () => {
-        this.p1Hitbox.setVisible(false);
-      });
-
-      this.time.delayedCall(this.attackCooldown, () => {
-        this.p1CanAttack = true;
-      });
-    }
-
-    if (Phaser.Input.Keyboard.JustDown(this.p2Controls.attack) && this.p2CanAttack) {
-      this.p2CanAttack = false;
-
-      const flip = this.player2.flipX ? -1 : 1;
-      this.p2Hitbox.setPosition(this.player2.x + (flip * 40), this.player2.y);
-      this.p2Hitbox.setVisible(true);
-
-      this.p2HitLanded = false;
-      this.time.delayedCall(this.attackDuration, () => {
-        this.p2Hitbox.setVisible(false);
-      });
-
-      this.time.delayedCall(this.attackCooldown, () => {
-        this.p2CanAttack = true;
-      });
-    }
+    this.handleAttack({
+      attacker: this.player1,
+      defender: this.player2,
+      hitbox: this.p1Hitbox,
+      attackKey: this.p1Controls.attack,
+      canAttackFlag: this.p1CanAttackRef,
+      hitLandedFlag: this.p1HitLandedRef,
+      flipXMultiplier: 40,
+      scene: this
+    });
+    this.handleAttack({
+      attacker: this.player2,
+      defender: this.player1,
+      hitbox: this.p2Hitbox,
+      attackKey: this.p2Controls.attack,
+      canAttackFlag: this.p2CanAttackRef,
+      hitLandedFlag: this.p2HitLandedRef,
+      flipXMultiplier: 40,
+      scene: this
+    });
   }
 }
