@@ -1,3 +1,26 @@
+function setVelocity(player, playerControls) {
+  if (playerControls.left.isDown) {
+    player.setVelocityX(-160);
+  } else if (playerControls.right.isDown) {
+    player.setVelocityX(160);
+  } else {
+    player.setVelocityX(0);
+  }
+
+  if (playerControls.up.isDown && player.blocked.down) {
+    player.setVelocityY(-400);
+  }
+}
+
+function setDirection(one, other) {
+  const pVelX = one.body.velocity.x;
+  if (Math.abs(pVelX) > 5) {
+    one.setFlipX(pVelX < 0);
+  } else {
+    one.setFlipX(one.x > other.x);
+  }
+}
+
 export default class MainScene extends Phaser.Scene {
   constructor() {
     super('MainScene');
@@ -12,14 +35,9 @@ export default class MainScene extends Phaser.Scene {
     this.ground = this.add.rectangle(400, 580, 800, 40, 0x888888);
     this.physics.add.existing(this.ground, true);
 
-    // TODO: replace rectangular players with images
-    // this.player1 = this.add.rectangle(200, 400, 40, 60, 0x00ff00);
-    // this.player2 = this.add.rectangle(600, 400, 40, 60, 0xff0000);
-    // this.physics.add.existing(this.player1);
-    // this.physics.add.existing(this.player2);
-
     this.player1 = this.physics.add.sprite(200, 400, 'chase');
     this.player2 = this.physics.add.sprite(600, 400, 'garner');
+    this.player2.setFlipX(true);
     this.player1.setCollideWorldBounds(true);
     this.player2.setCollideWorldBounds(true);
     this.physics.add.collider(this.player1, this.ground);
@@ -42,36 +60,12 @@ export default class MainScene extends Phaser.Scene {
     });
   }
 
+
   update() {
+    setVelocity(this.player1.body, this.p1Controls);
+    setVelocity(this.player2.body, this.p2Controls);
 
-    const p1 = this.player1.body;
-    const p2 = this.player2.body;
-
-    if (this.p1Controls.left.isDown) {
-      p1.setVelocityX(-160);
-    } else if (this.p1Controls.right.isDown) {
-      p1.setVelocityX(160);
-    } else {
-      p1.setVelocityX(0);
-    }
-
-    if (this.p1Controls.up.isDown && p1.blocked.down) {
-      p1.setVelocityY(-400);
-    }
-
-    if (this.p2Controls.left.isDown) {
-      p2.setVelocityX(-160);
-    } else if (this.p2Controls.right.isDown) {
-      p2.setVelocityX(160);
-    } else {
-      p2.setVelocityX(0);
-    }
-
-    if (this.p2Controls.up.isDown && p2.blocked.down) {
-      p2.setVelocityY(-400);
-    }
-
-    this.player1.setFlipX(this.player1.body.velocity.x < 0);
-    this.player2.setFlipX(this.player2.body.velocity.x < 0);
+    setDirection(this.player1, this.player2);
+    setDirection(this.player2, this.player1);
   }
 }
