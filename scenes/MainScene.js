@@ -8,6 +8,25 @@ export default class MainScene extends Phaser.Scene {
     this.load.image('garner', 'assets/garner.png');
   }
 
+  drawHealthBars() {
+    this.p1HealthBar.clear();
+    this.p2HealthBar.clear();
+
+    this.p1HealthBar.fillStyle(0xff0000);
+    this.p1HealthBar.fillRect(20, 20, this.p1Health * 2, 20);
+
+    this.p2HealthBar.fillStyle(0x0000ff);
+    this.p2HealthBar.fillRect(780 - this.p2Health * 2, 20, this.p2Health * 2, 20);
+  }
+
+  handleWin(winner) {
+    this.add.text(300, 250, `Player ${winner} Wins!`, {
+      fontSize: '32px',
+      color: "#ffffff"
+    });
+    this.scene.pause();
+  }
+
   create() {
     this.ground = this.add.rectangle(400, 580, 800, 40, 0x888888);
     this.physics.add.existing(this.ground, true);
@@ -56,18 +75,33 @@ export default class MainScene extends Phaser.Scene {
     this.p2Hitbox.body.setImmovable(true);
     this.p2Hitbox.setVisible(false);
 
+    this.p1Health = 100;
+    this.p2Health = 100;
+    this.p1HealthBar = this.add.graphics();
+    this.p2HealthBar = this.add.graphics();
+    this.drawHealthBars();
 
     this.physics.add.overlap(this.p1Hitbox, this.player2, () => {
       if (!this.p1HitLandedRef.value) {
-        console.log('Player 1 hit Player 2!');
         this.p1HitLandedRef.value = true;
+        this.p2Health = Math.max(0, this.p2Health - 10);
+        this.drawHealthBars();
+
+        if (this.p2Health <= 0) {
+          this.handleWin(1);
+        }
       }
     });
 
     this.physics.add.overlap(this.p2Hitbox, this.player1, () => {
       if (!this.p2HitLandedRef.value) {
-        console.log('Player 2 hit Player 1!');
         this.p2HitLandedRef.value = true;
+        this.p1Health = Math.max(0, this.p1Health - 10);
+        this.drawHealthBars();
+
+        if (this.p1Health <= 0) {
+          this.handleWin(2);
+        }
       }
     });
   }
