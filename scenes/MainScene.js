@@ -1,3 +1,5 @@
+import { CHARACTERS } from '../characters.js'
+
 export default class MainScene extends Phaser.Scene {
   constructor() {
     super('MainScene');
@@ -5,7 +7,7 @@ export default class MainScene extends Phaser.Scene {
 
   preload() {
     this.load.image('chase', 'assets/chase.png');
-    this.load.image('garner', 'assets/curtis.png');
+    this.load.image('curtis', 'assets/curtis.png');
     this.load.image('bg', 'assets/background-01.png');
     this.load.image('platform', 'assets/platform.png')
   }
@@ -48,9 +50,11 @@ export default class MainScene extends Phaser.Scene {
     this.platforms.create(150, 300, 'platform').setScale(0.4).refreshBody(); // left
     this.platforms.create(650, 300, 'platform').setScale(0.4).refreshBody(); // right
 
+    this.p1Character = CHARACTERS.chase;
+    this.p2Character = CHARACTERS.curtis;
 
     this.player1 = this.physics.add.sprite(200, 400, 'chase');
-    this.player2 = this.physics.add.sprite(600, 400, 'garner');
+    this.player2 = this.physics.add.sprite(600, 400, 'curtis');
     this.player2.setFlipX(true);
     this.player1.setCollideWorldBounds(true);
     this.player2.setCollideWorldBounds(true);
@@ -107,7 +111,7 @@ export default class MainScene extends Phaser.Scene {
     this.physics.add.overlap(this.p1Hitbox, this.player2, () => {
       if (!this.p1HitLandedRef.value) {
         this.p1HitLandedRef.value = true;
-        this.p2Health = Math.max(0, this.p2Health - 10);
+        this.p2Health = Math.max(0, this.p2Health - this.p1Character.strength);
         this.player2.setTint(0xff0000);
         this.time.delayedCall(100, () => {
           this.player2.clearTint();
@@ -123,7 +127,7 @@ export default class MainScene extends Phaser.Scene {
     this.physics.add.overlap(this.p2Hitbox, this.player1, () => {
       if (!this.p2HitLandedRef.value) {
         this.p2HitLandedRef.value = true;
-        this.p1Health = Math.max(0, this.p1Health - 10);
+        this.p1Health = Math.max(0, this.p1Health - this.p2Character.strength);
         this.player1.setTint(0xff0000);
         this.time.delayedCall(100, () => {
           this.player1.clearTint();
@@ -137,17 +141,17 @@ export default class MainScene extends Phaser.Scene {
     });
   }
 
-  setVelocity(player, playerControls) {
-    if (playerControls.left.isDown) {
-      player.setVelocityX(-160);
-    } else if (playerControls.right.isDown) {
-      player.setVelocityX(160);
+  setVelocity(player, controls, character) {
+    if (controls.left.isDown) {
+      player.setVelocityX(-character.speed);
+    } else if (controls.right.isDown) {
+      player.setVelocityX(character.speed);
     } else {
       player.setVelocityX(0);
     }
 
-    if (playerControls.up.isDown && player.blocked.down) {
-      player.setVelocityY(-550);
+    if (controls.up.isDown && player.blocked.down) {
+      player.setVelocityY(character.jump);
     }
   }
 
@@ -201,8 +205,8 @@ export default class MainScene extends Phaser.Scene {
   update() {
     if (this.gameOver) return;
 
-    this.setVelocity(this.player1.body, this.p1Controls);
-    this.setVelocity(this.player2.body, this.p2Controls);
+    this.setVelocity(this.player1.body, this.p1Controls, this.p1Character);
+    this.setVelocity(this.player2.body, this.p2Controls, this.p2Character);
 
     this.setDirection(this.player1, this.player2);
     this.setDirection(this.player2, this.player1);
