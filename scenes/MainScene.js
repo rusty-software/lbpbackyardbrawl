@@ -7,6 +7,7 @@ export default class MainScene extends Phaser.Scene {
     this.load.image('chase', 'assets/chase.png');
     this.load.image('garner', 'assets/garner.png');
     this.load.image('bg', 'assets/background-01.png');
+    this.load.image('platform', 'assets/platform.png')
   }
 
   handleWin(winner) {
@@ -42,6 +43,12 @@ export default class MainScene extends Phaser.Scene {
     this.ground = this.add.rectangle(400, 580, 800, 40, 0x888888);
     this.physics.add.existing(this.ground, true);
 
+    this.platforms = this.physics.add.staticGroup();
+    this.platforms.create(400, 400, 'platform').setScale(0.5).refreshBody(); // center
+    this.platforms.create(150, 300, 'platform').setScale(0.4).refreshBody(); // left
+    this.platforms.create(650, 300, 'platform').setScale(0.4).refreshBody(); // right
+
+
     this.player1 = this.physics.add.sprite(200, 400, 'chase');
     this.player2 = this.physics.add.sprite(600, 400, 'garner');
     this.player2.setFlipX(true);
@@ -52,6 +59,9 @@ export default class MainScene extends Phaser.Scene {
 
     this.player1.body.setBounce(0.2);
     this.player2.body.setBounce(0.2);
+
+    this.physics.add.collider(this.player1, this.platforms);
+    this.physics.add.collider(this.player2, this.platforms);
 
     this.p1Controls = this.input.keyboard.addKeys({
       left: 'A',
@@ -137,7 +147,7 @@ export default class MainScene extends Phaser.Scene {
     }
 
     if (playerControls.up.isDown && player.blocked.down) {
-      player.setVelocityY(-400);
+      player.setVelocityY(-550);
     }
   }
 
