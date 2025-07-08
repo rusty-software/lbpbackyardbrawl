@@ -167,7 +167,6 @@ export default class MainScene extends Phaser.Scene {
       const direction = attacker.flipX ? -1 : 1;
       hitbox.setPosition(attacker.x + (direction * flipXMultiplier), attacker.y);
       hitbox.setVisible(true);
-
       hitbox.body.enable = true;
 
       scene.physics.add.overlap(hitbox, defender, () => {
@@ -176,11 +175,14 @@ export default class MainScene extends Phaser.Scene {
         }
       });
 
-      scene.time.delayedCall(150, () => {
+      scene.time.delayedCall(30, () => {
+        hitbox.body.enable = false;
+      });
+      scene.time.delayedCall(scene.attackDuration, () => {
         hitbox.setVisible(false);
       });
 
-      scene.time.delayedCall(500, () => {
+      scene.time.delayedCall(scene.attackCooldown, () => {
         canAttackFlag.value = true;
       });
     }
