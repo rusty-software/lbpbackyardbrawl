@@ -6,28 +6,39 @@ export default class MainScene extends Phaser.Scene {
   preload() {
     this.load.image('chase', 'assets/chase.png');
     this.load.image('garner', 'assets/garner.png');
-  }
-
-  drawHealthBars() {
-    this.p1HealthBar.clear();
-    this.p2HealthBar.clear();
-
-    this.p1HealthBar.fillStyle(0xff0000);
-    this.p1HealthBar.fillRect(20, 20, this.p1Health * 2, 20);
-
-    this.p2HealthBar.fillStyle(0x0000ff);
-    this.p2HealthBar.fillRect(780 - this.p2Health * 2, 20, this.p2Health * 2, 20);
+    this.load.image('bg', 'assets/background-01.png');
   }
 
   handleWin(winner) {
-    this.add.text(300, 250, `Player ${winner} Wins!`, {
-      fontSize: '32px',
-      color: "#ffffff"
+    if (this.gameOver) return;
+    this.gameOver = true;
+
+    this.scene.launch('WinScene', { winner });
+    this.time.delayedCall(300, () => {
+      this.scene.pause();
     });
-    this.scene.pause();
+  }
+
+  updateHealthBars() {
+    this.tweens.add({
+      targets: this.p1HealthBar,
+      props: {
+        scaleX: { value: this.p1Health / 100, duration: 150 }
+      }
+    });
+
+    this.tweens.add({
+      targets: this.p2HealthBar,
+      props: {
+        scaleX: { value: this.p2Health / 100, duration: 150 }
+      }
+    });
   }
 
   create() {
+    this.gameOver = false;
+    this.add.image(400, 300, 'bg').setDepth(-1);
+
     this.ground = this.add.rectangle(400, 580, 800, 40, 0x888888);
     this.physics.add.existing(this.ground, true);
 
@@ -77,15 +88,21 @@ export default class MainScene extends Phaser.Scene {
 
     this.p1Health = 100;
     this.p2Health = 100;
-    this.p1HealthBar = this.add.graphics();
-    this.p2HealthBar = this.add.graphics();
-    this.drawHealthBars();
+    this.p1HealthBar = this.add.rectangle(20, 20, 200, 20, 0xff0000).setOrigin(0, 0);
+    this.p1HealthBar.setScale(1, 1);
+    this.p2HealthBar = this.add.rectangle(780, 20, 200, 20, 0x0000ff).setOrigin(1, 0);
+    this.p2HealthBar.setScale(1, 1);
+    this.updateHealthBars();
 
     this.physics.add.overlap(this.p1Hitbox, this.player2, () => {
       if (!this.p1HitLandedRef.value) {
         this.p1HitLandedRef.value = true;
         this.p2Health = Math.max(0, this.p2Health - 10);
-        this.drawHealthBars();
+        this.player2.setTint(0xff0000);
+        this.time.delayedCall(100, () => {
+          this.player2.clearTint();
+        });
+        this.updateHealthBars();
 
         if (this.p2Health <= 0) {
           this.handleWin(1);
@@ -97,7 +114,11 @@ export default class MainScene extends Phaser.Scene {
       if (!this.p2HitLandedRef.value) {
         this.p2HitLandedRef.value = true;
         this.p1Health = Math.max(0, this.p1Health - 10);
-        this.drawHealthBars();
+        this.player1.setTint(0xff0000);
+        this.time.delayedCall(100, () => {
+          this.player1.clearTint();
+        });
+        this.updateHealthBars();
 
         if (this.p1Health <= 0) {
           this.handleWin(2);
@@ -151,7 +172,6 @@ export default class MainScene extends Phaser.Scene {
 
       scene.physics.add.overlap(hitbox, defender, () => {
         if (!hitLandedFlag.value) {
-          console.log(`${attacker.texture.key} hit ${defender.texture.key}`);
           hitLandedFlag.value = true;
         }
       });
@@ -167,6 +187,8 @@ export default class MainScene extends Phaser.Scene {
   }
 
   update() {
+    if (this.gameOver) return;
+
     this.setVelocity(this.player1.body, this.p1Controls);
     this.setVelocity(this.player2.body, this.p2Controls);
 
