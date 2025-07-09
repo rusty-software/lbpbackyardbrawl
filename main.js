@@ -1,3 +1,4 @@
+import SelectScene from './scenes/SelectScene.js';
 import MainScene from './scenes/MainScene.js';
 import WinScene from './scenes/WinScene.js';
 
@@ -13,7 +14,7 @@ const config = {
       debug: false
     }
   },
-  scene: [MainScene, WinScene]
+  scene: [SelectScene, MainScene, WinScene]
 }
 
 const game = new Phaser.Game(config);

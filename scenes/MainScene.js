@@ -5,6 +5,11 @@ export default class MainScene extends Phaser.Scene {
     super('MainScene');
   }
 
+  init(data) {
+    this.p1Character = data.p1Character;
+    this.p2Character = data.p2Character;
+  }
+
   preload() {
     this.load.image('chase', 'assets/chase.png');
     this.load.image('curtis', 'assets/curtis.png');
@@ -50,11 +55,11 @@ export default class MainScene extends Phaser.Scene {
     this.platforms.create(150, 300, 'platform').setScale(0.4).refreshBody(); // left
     this.platforms.create(650, 300, 'platform').setScale(0.4).refreshBody(); // right
 
-    this.p1Character = CHARACTERS.chase;
-    this.p2Character = CHARACTERS.curtis;
+    this.add.text(20, 50, `P1: ${this.p1Character.name}`, { fontSize: '16px', color: '#fff' });
+    this.add.text(620, 50, `P2: ${this.p2Character.name}`, { fontSize: '16px', color: '#fff' });
 
-    this.player1 = this.physics.add.sprite(200, 400, 'chase');
-    this.player2 = this.physics.add.sprite(600, 400, 'curtis');
+    this.player1 = this.physics.add.sprite(200, 400, this.p1Character.sprite);
+    this.player2 = this.physics.add.sprite(600, 400, this.p2Character.sprite);
     this.player2.setFlipX(true);
     this.player1.setCollideWorldBounds(true);
     this.player2.setCollideWorldBounds(true);
