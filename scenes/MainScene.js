@@ -87,7 +87,6 @@ export default class MainScene extends Phaser.Scene {
     });
 
     this.attackDuration = 150;
-    this.attackCooldown = 500;
 
     this.p1CanAttackRef = { value: true };
     this.p1HitLandedRef = { value: false };
@@ -174,6 +173,7 @@ export default class MainScene extends Phaser.Scene {
     defender,
     hitbox,
     attackKey,
+    attackCooldown,
     canAttackFlag,
     hitLandedFlag,
     flipXMultiplier,
@@ -201,7 +201,7 @@ export default class MainScene extends Phaser.Scene {
         hitbox.setVisible(false);
       });
 
-      scene.time.delayedCall(scene.attackCooldown, () => {
+      scene.time.delayedCall(attackCooldown, () => {
         canAttackFlag.value = true;
       });
     }
@@ -221,6 +221,7 @@ export default class MainScene extends Phaser.Scene {
       defender: this.player2,
       hitbox: this.p1Hitbox,
       attackKey: this.p1Controls.attack,
+      attackCooldown: this.p1Character.cooldown || 500,
       canAttackFlag: this.p1CanAttackRef,
       hitLandedFlag: this.p1HitLandedRef,
       flipXMultiplier: 40,
@@ -231,6 +232,7 @@ export default class MainScene extends Phaser.Scene {
       defender: this.player1,
       hitbox: this.p2Hitbox,
       attackKey: this.p2Controls.attack,
+      attackCooldown: this.p2Character.cooldown || 500,
       canAttackFlag: this.p2CanAttackRef,
       hitLandedFlag: this.p2HitLandedRef,
       flipXMultiplier: 40,
