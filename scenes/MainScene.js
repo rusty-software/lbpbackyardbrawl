@@ -8,6 +8,7 @@ export default class MainScene extends Phaser.Scene {
   init(data) {
     this.p1Character = data.p1Character;
     this.p2Character = data.p2Character;
+    this.aiMode = data.aiMode || false;
   }
 
   preload() {

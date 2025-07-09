@@ -1,3 +1,4 @@
+import MenuScene from './scenes/MenuScene.js';
 import SelectScene from './scenes/SelectScene.js';
 import MainScene from './scenes/MainScene.js';
 import WinScene from './scenes/WinScene.js';
@@ -20,7 +21,7 @@ const config = {
     width: 800,
     height: 600
   },
-  scene: [SelectScene, MainScene, WinScene]
+  scene: [MenuScene, SelectScene, MainScene, WinScene]
 }
 
 const game = new Phaser.Game(config);

@@ -5,6 +5,10 @@ export default class SelectScene extends Phaser.Scene {
     super({ key: 'SelectScene' });
   }
 
+  init(data) {
+    this.aiMode = data.aiMode;
+  }
+
   preload() {
     this.load.image('chase', 'assets/chase.png');
     this.load.image('curtis', 'assets/curtis.png');
@@ -45,7 +49,11 @@ export default class SelectScene extends Phaser.Scene {
         const p2CharacterKey = this.availableForP2[this.p2Index];
         const p1Char = CHARACTERS[this.p1CharacterKey];
         const p2Char = CHARACTERS[p2CharacterKey];
-        this.scene.start('MainScene', { p1Character: p1Char, p2Character: p2Char });
+        this.scene.start('MainScene', {
+          p1Character: p1Char,
+          p2Character: p2Char,
+          aiMode: this.aiMode
+        });
       }
     });
   }
