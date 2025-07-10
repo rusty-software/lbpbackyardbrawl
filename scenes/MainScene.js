@@ -1,5 +1,3 @@
-import { CHARACTERS } from '../characters.js'
-
 export default class MainScene extends Phaser.Scene {
   constructor() {
     super('MainScene');
@@ -14,229 +12,135 @@ export default class MainScene extends Phaser.Scene {
     this.load.image('chase', 'assets/chase.png');
     this.load.image('curtis', 'assets/curtis.png');
     this.load.image('bg', 'assets/background-01.png');
-    this.load.image('platform', 'assets/platform.png')
-  }
-
-  handleWin(winner) {
-    if (this.gameOver) return;
-    this.gameOver = true;
-
-    this.scene.launch('WinScene', { winner });
-    this.time.delayedCall(300, () => {
-      this.scene.pause();
-    });
-  }
-
-  updateHealthBars() {
-    this.tweens.add({
-      targets: this.p1HealthBar,
-      props: {
-        scaleX: { value: this.p1Health / 100, duration: 150 }
-      }
-    });
-
-    this.tweens.add({
-      targets: this.p2HealthBar,
-      props: {
-        scaleX: { value: this.p2Health / 100, duration: 150 }
-      }
-    });
+    this.load.image('platform', 'assets/platform.png');
   }
 
   create() {
     this.gameOver = false;
+    this.attackDuration = 150;
+
     this.add.image(400, 300, 'bg').setDepth(-1);
 
     this.ground = this.add.rectangle(400, 580, 800, 40, 0x888888);
     this.physics.add.existing(this.ground, true);
 
     this.platforms = this.physics.add.staticGroup();
-    this.platforms.create(400, 400, 'platform').setScale(0.5).refreshBody(); // center
-    this.platforms.create(150, 300, 'platform').setScale(0.4).refreshBody(); // left
-    this.platforms.create(650, 300, 'platform').setScale(0.4).refreshBody(); // right
+    [[400, 400, 0.5], [150, 300, 0.4], [650, 300, 0.4]].forEach(([x, y, scale]) => {
+      this.platforms.create(x, y, 'platform').setScale(scale).refreshBody();
+    });
 
     this.add.text(20, 50, `P1: ${this.p1Character.name}`, { fontSize: '16px', color: '#fff' });
     this.add.text(620, 50, `P2: ${this.p2Character.name}`, { fontSize: '16px', color: '#fff' });
 
-    this.player1 = this.physics.add.sprite(200, 400, this.p1Character.sprite);
-    this.player2 = this.physics.add.sprite(600, 400, this.p2Character.sprite);
-    this.player2.setFlipX(true);
-    this.player1.setCollideWorldBounds(true);
-    this.player2.setCollideWorldBounds(true);
-    this.physics.add.collider(this.player1, this.ground);
-    this.physics.add.collider(this.player2, this.ground);
+    this.p1Controls = this.input.keyboard.addKeys({ left: 'A', right: 'D', up: 'W', attack: 'F' });
+    this.p2Controls = this.input.keyboard.addKeys({ left: 'LEFT', right: 'RIGHT', up: 'UP', attack: 'L' });
 
-    this.player1.body.setBounce(0.2);
-    this.player2.body.setBounce(0.2);
+    this.player1 = this.createPlayer(200, 400, this.p1Character, this.p1Controls, false);
+    this.player2 = this.createPlayer(600, 400, this.p2Character, this.p2Controls, true);
 
-    this.physics.add.collider(this.player1, this.platforms);
-    this.physics.add.collider(this.player2, this.platforms);
+    this.player1.combat = this.setupAttack(this.player1, this.player2, 0xffff00);
+    this.player2.combat = this.setupAttack(this.player2, this.player1, 0xff00ff);
 
-    this.p1Controls = this.input.keyboard.addKeys({
-      left: 'A',
-      right: 'D',
-      up: 'W',
-      attack: 'F'
-    });
-
-    this.p2Controls = this.input.keyboard.addKeys({
-      left: 'LEFT',
-      right: 'RIGHT',
-      up: 'UP',
-      attack: 'L'
-    });
-
-    this.attackDuration = 150;
-
-    this.p1CanAttackRef = { value: true };
-    this.p1HitLandedRef = { value: false };
-    this.p1Hitbox = this.add.rectangle(0, 0, 40, 30, 0xffff00, 0.5);
-    this.physics.add.existing(this.p1Hitbox);
-    this.p1Hitbox.body.setAllowGravity(false);
-    this.p1Hitbox.body.setImmovable(true);
-    this.p1Hitbox.setVisible(false);
-
-    this.p2CanAttackRef = { value: true };
-    this.p2HitLandedRef = { value: false };
-    this.p2Hitbox = this.add.rectangle(0, 0, 40, 30, 0xff00ff, 0.5);
-    this.physics.add.existing(this.p2Hitbox);
-    this.p2Hitbox.body.setAllowGravity(false);
-    this.p2Hitbox.body.setImmovable(true);
-    this.p2Hitbox.setVisible(false);
-
-    this.p1Health = 100;
-    this.p2Health = 100;
-    this.p1HealthBar = this.add.rectangle(20, 20, 200, 20, 0xff0000).setOrigin(0, 0);
-    this.p1HealthBar.setScale(1, 1);
-    this.p2HealthBar = this.add.rectangle(780, 20, 200, 20, 0x0000ff).setOrigin(1, 0);
-    this.p2HealthBar.setScale(1, 1);
     this.updateHealthBars();
-
-    this.physics.add.overlap(this.p1Hitbox, this.player2, () => {
-      if (!this.p1HitLandedRef.value) {
-        this.p1HitLandedRef.value = true;
-        this.p2Health = Math.max(0, this.p2Health - this.p1Character.strength);
-        this.player2.setTint(0xff0000);
-        this.time.delayedCall(100, () => {
-          this.player2.clearTint();
-        });
-        this.updateHealthBars();
-
-        if (this.p2Health <= 0) {
-          this.handleWin(1);
-        }
-      }
-    });
-
-    this.physics.add.overlap(this.p2Hitbox, this.player1, () => {
-      if (!this.p2HitLandedRef.value) {
-        this.p2HitLandedRef.value = true;
-        this.p1Health = Math.max(0, this.p1Health - this.p2Character.strength);
-        this.player1.setTint(0xff0000);
-        this.time.delayedCall(100, () => {
-          this.player1.clearTint();
-        });
-        this.updateHealthBars();
-
-        if (this.p1Health <= 0) {
-          this.handleWin(2);
-        }
-      }
-    });
   }
 
-  setVelocity(player, controls, character) {
-    if (controls.left.isDown) {
-      player.setVelocityX(-character.speed);
-    } else if (controls.right.isDown) {
-      player.setVelocityX(character.speed);
-    } else {
-      player.setVelocityX(0);
-    }
+  createPlayer(x, y, characterData, controls, isPlayer2) {
+    const player = this.physics.add.sprite(x, y, characterData.sprite);
+    player.setCollideWorldBounds(true).setBounce(0.2).setFlipX(isPlayer2);
+    this.physics.add.collider(player, this.ground);
+    this.physics.add.collider(player, this.platforms);
+    player.character = characterData;
+    player.controls = controls;
+    player.health = 100;
+    player.healthBar = this.add.rectangle(
+      isPlayer2 ? 780 : 20,
+      20,
+      200,
+      20,
+      isPlayer2 ? 0x0000ff : 0xff0000
+    ).setOrigin(isPlayer2 ? 1 : 0, 0);
+    player.healthBar.setScale(1, 1);
+    return player;
+  }
 
-    if (controls.up.isDown && player.blocked.down) {
-      player.setVelocityY(character.jump);
+  setupAttack(attacker, defender, color) {
+    const hitbox = this.add.rectangle(0, 0, 40, 30, color, 0.5);
+    this.physics.add.existing(hitbox);
+    hitbox.body.setAllowGravity(false);
+    hitbox.body.setImmovable(true);
+    hitbox.setVisible(false);
+
+    const state = { canAttack: true, hitLanded: false, hitbox };
+
+    this.physics.add.overlap(hitbox, defender, () => {
+      if (!state.hitLanded) {
+        state.hitLanded = true;
+        defender.health = Math.max(0, defender.health - attacker.character.strength);
+        defender.setTint(0xff0000);
+        this.time.delayedCall(100, () => defender.clearTint());
+        this.updateHealthBars();
+        if (defender.health <= 0) this.handleWin(attacker === this.player1 ? 1 : 2);
+      }
+    });
+
+    return state;
+  }
+
+  updateHealthBars() {
+    this.tweens.add({ targets: this.player1.healthBar, props: { scaleX: { value: this.player1.health / 100, duration: 150 } } });
+    this.tweens.add({ targets: this.player2.healthBar, props: { scaleX: { value: this.player2.health / 100, duration: 150 } } });
+  }
+
+  handleWin(winner) {
+    if (this.gameOver) return;
+    this.gameOver = true;
+    this.scene.launch('WinScene', { winner });
+    this.time.delayedCall(300, () => this.scene.pause());
+  }
+
+  setVelocity(player) {
+    const { left, right, up } = player.controls;
+    if (left.isDown) player.setVelocityX(-player.character.speed);
+    else if (right.isDown) player.setVelocityX(player.character.speed);
+    else player.setVelocityX(0);
+
+    if (up.isDown && player.body.blocked.down) {
+      player.setVelocityY(player.character.jump);
     }
   }
 
   setDirection(one, other) {
     const pVelX = one.body.velocity.x;
-    if (Math.abs(pVelX) > 5) {
-      one.setFlipX(pVelX < 0);
-    } else {
-      one.setFlipX(one.x > other.x);
-    }
+    if (Math.abs(pVelX) > 5) one.setFlipX(pVelX < 0);
+    else one.setFlipX(one.x > other.x);
   }
 
-  handleAttack({
-    attacker,
-    defender,
-    hitbox,
-    attackKey,
-    attackCooldown,
-    canAttackFlag,
-    hitLandedFlag,
-    flipXMultiplier,
-    scene
-  }) {
-    if (Phaser.Input.Keyboard.JustDown(attackKey) && canAttackFlag.value) {
-      canAttackFlag.value = false;
-      hitLandedFlag.value = false;
+  handleAttack(player) {
+    const { attack } = player.controls;
+    const { canAttack, hitbox } = player.combat;
 
-      const direction = attacker.flipX ? -1 : 1;
-      hitbox.setPosition(attacker.x + (direction * flipXMultiplier), attacker.y);
+    if (Phaser.Input.Keyboard.JustDown(attack) && canAttack) {
+      player.combat.canAttack = false;
+      player.combat.hitLanded = false;
+
+      const direction = player.flipX ? -1 : 1;
+      hitbox.setPosition(player.x + (direction * 40), player.y);
       hitbox.setVisible(true);
       hitbox.body.enable = true;
 
-      scene.physics.add.overlap(hitbox, defender, () => {
-        if (!hitLandedFlag.value) {
-          hitLandedFlag.value = true;
-        }
-      });
-
-      scene.time.delayedCall(30, () => {
-        hitbox.body.enable = false;
-      });
-      scene.time.delayedCall(scene.attackDuration, () => {
-        hitbox.setVisible(false);
-      });
-
-      scene.time.delayedCall(attackCooldown, () => {
-        canAttackFlag.value = true;
-      });
+      this.time.delayedCall(30, () => hitbox.body.enable = false);
+      this.time.delayedCall(this.attackDuration, () => hitbox.setVisible(false));
+      this.time.delayedCall(player.character.cooldown || 500, () => player.combat.canAttack = true);
     }
   }
 
   update() {
     if (this.gameOver) return;
 
-    this.setVelocity(this.player1.body, this.p1Controls, this.p1Character);
-    this.setVelocity(this.player2.body, this.p2Controls, this.p2Character);
-
+    [this.player1, this.player2].forEach(player => this.setVelocity(player));
     this.setDirection(this.player1, this.player2);
     this.setDirection(this.player2, this.player1);
-
-    this.handleAttack({
-      attacker: this.player1,
-      defender: this.player2,
-      hitbox: this.p1Hitbox,
-      attackKey: this.p1Controls.attack,
-      attackCooldown: this.p1Character.cooldown || 500,
-      canAttackFlag: this.p1CanAttackRef,
-      hitLandedFlag: this.p1HitLandedRef,
-      flipXMultiplier: 40,
-      scene: this
-    });
-    this.handleAttack({
-      attacker: this.player2,
-      defender: this.player1,
-      hitbox: this.p2Hitbox,
-      attackKey: this.p2Controls.attack,
-      attackCooldown: this.p2Character.cooldown || 500,
-      canAttackFlag: this.p2CanAttackRef,
-      hitLandedFlag: this.p2HitLandedRef,
-      flipXMultiplier: 40,
-      scene: this
-    });
+    this.handleAttack(this.player1);
+    this.handleAttack(this.player2);
   }
 }
