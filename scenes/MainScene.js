@@ -1,3 +1,5 @@
+import { POWERUPS } from '../powerups.js';
+
 export default class MainScene extends Phaser.Scene {
   constructor() {
     super('MainScene');
@@ -11,8 +13,12 @@ export default class MainScene extends Phaser.Scene {
   preload() {
     this.load.image('chase', 'assets/chase.png');
     this.load.image('curtis', 'assets/curtis.png');
-    this.load.image('bg', 'assets/background-01.png');
+    // this.load.image('bg', 'assets/background-01.png');
+    this.load.image('bg', 'assets/sky.png');
     this.load.image('platform', 'assets/platform.png');
+    this.load.image('powerup_brisket', 'assets/powerups/brisket.png');
+    this.load.image('powerup_popper', 'assets/powerups/popper.png');
+    this.load.image('powerup_shield', 'assets/powerups/shield.png');
   }
 
   create() {
@@ -21,11 +27,8 @@ export default class MainScene extends Phaser.Scene {
 
     this.add.image(400, 300, 'bg').setDepth(-1);
 
-    this.ground = this.add.rectangle(400, 580, 800, 40, 0x888888);
-    this.physics.add.existing(this.ground, true);
-
     this.platforms = this.physics.add.staticGroup();
-    [[400, 400, 0.5], [150, 300, 0.4], [650, 300, 0.4]].forEach(([x, y, scale]) => {
+    [[400, 590, 2], [400, 400, 0.5], [75, 250, 0.4], [725, 220, 0.4]].forEach(([x, y, scale]) => {
       this.platforms.create(x, y, 'platform').setScale(scale).refreshBody();
     });
 
@@ -42,6 +45,8 @@ export default class MainScene extends Phaser.Scene {
     this.player2.combat = this.setupAttack(this.player2, this.player1, 0xff00ff);
 
     this.updateHealthBars();
+
+    this.schedulePowerupSpawn();
   }
 
   createPlayer(x, y, characterData, controls, isPlayer2) {
@@ -52,6 +57,7 @@ export default class MainScene extends Phaser.Scene {
     player.character = characterData;
     player.controls = controls;
     player.health = 100;
+    player.activePowerup = null;
     player.healthBar = this.add.rectangle(
       isPlayer2 ? 780 : 20,
       20,
@@ -60,6 +66,7 @@ export default class MainScene extends Phaser.Scene {
       isPlayer2 ? 0x0000ff : 0xff0000
     ).setOrigin(isPlayer2 ? 1 : 0, 0);
     player.healthBar.setScale(1, 1);
+
     return player;
   }
 
@@ -75,11 +82,13 @@ export default class MainScene extends Phaser.Scene {
     this.physics.add.overlap(hitbox, defender, () => {
       if (!state.hitLanded) {
         state.hitLanded = true;
-        defender.health = Math.max(0, defender.health - attacker.character.strength);
-        defender.setTint(0xff0000);
-        this.time.delayedCall(100, () => defender.clearTint());
-        this.updateHealthBars();
-        if (defender.health <= 0) this.handleWin(attacker === this.player1 ? 1 : 2);
+        if (!defender.invincible) {
+          defender.health = Math.max(0, defender.health - attacker.character.strength);
+          defender.setTint(0xff0000);
+          this.time.delayedCall(100, () => defender.clearTint());
+          this.updateHealthBars();
+          if (defender.health <= 0) this.handleWin(attacker === this.player1 ? 1 : 2);
+        }
       }
     });
 
@@ -132,6 +141,72 @@ export default class MainScene extends Phaser.Scene {
       this.time.delayedCall(this.attackDuration, () => hitbox.setVisible(false));
       this.time.delayedCall(player.character.cooldown || 500, () => player.combat.canAttack = true);
     }
+  }
+
+  schedulePowerupSpawn() {
+    this.time.addEvent({
+      delay: 7000,
+      loop: true,
+      callback: () => {
+        const types = Object.keys(POWERUPS);
+        const randomType = Phaser.Utils.Array.GetRandom(types);
+        this.spawnPowerup(randomType);
+      }
+    });
+  }
+
+  spawnPowerup(type) {
+    const def = POWERUPS[type];
+    const x = Phaser.Math.Between(100, 700);
+    const y = Phaser.Math.Between(100, 400);
+
+    const powerup = this.physics.add.sprite(x, y, def.sprite)
+      .setOrigin(0.5)
+      .setDepth(1)
+      .setData('type', type)
+      .setData('applied', false);
+
+    powerup.body.setAllowGravity(false);
+    powerup.body.setImmovable(true);
+    powerup.body.setEnable(true);
+
+    powerup.setData('type', type).setData('applied', false);
+
+    [this.player1, this.player2].forEach((player) => {
+      this.physics.add.overlap(powerup, player, (pwr, plyr) => {
+        const type = pwr.getData('type');
+        const data = POWERUPS[type];
+
+        if (!data) return;
+
+        this.applyPowerupToPlayer(plyr, data);
+        pwr.destroy();
+      });
+
+    });
+
+    this.time.delayedCall(8000, () => {
+      if (powerup.active) powerup.destroy();
+    });
+  }
+
+  applyPowerupToPlayer(player, data) {
+    if (player.activePowerup) {
+      const old = player.activePowerup;
+      if (old.timer) old.timer.remove();
+      old.data.revert(player);
+    }
+
+    data.apply(player);
+    player.setTint(0xffff00);
+
+    const timer = this.time.delayedCall(data.duration, () => {
+      data.revert(player);
+      player.activePowerup = null;
+      player.clearTint();
+    });
+
+    player.activePowerup = { data, timer };
   }
 
   update() {
