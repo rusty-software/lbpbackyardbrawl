@@ -59,12 +59,19 @@ export default class MainScene extends Phaser.Scene {
     this.add.text(20, 50, `P1: ${this.p1Character.name}`, { fontSize: '16px', color: '#fff' });
     this.add.text(620, 50, `P2: ${this.p2Character.name}`, { fontSize: '16px', color: '#fff' });
 
-    this.createPlayer1();
-    if (this.aiMode) {
-      this.createAIPlayer(this.p2Character);
-    } else {
-      this.createPlayer2(this.p2Character);
-    }
+    this.player1 = this.physics.add.sprite(200, 400, this.p1Character.sprite);
+    this.player2 = this.physics.add.sprite(600, 400, this.p2Character.sprite);
+    this.player2.setFlipX(true);
+    this.player1.setCollideWorldBounds(true);
+    this.player2.setCollideWorldBounds(true);
+    this.physics.add.collider(this.player1, this.ground);
+    this.physics.add.collider(this.player2, this.ground);
+
+    this.player1.body.setBounce(0.2);
+    this.player2.body.setBounce(0.2);
+
+    this.physics.add.collider(this.player1, this.platforms);
+    this.physics.add.collider(this.player2, this.platforms);
 
     this.p1Controls = this.input.keyboard.addKeys({
       left: 'A',
@@ -73,14 +80,12 @@ export default class MainScene extends Phaser.Scene {
       attack: 'F'
     });
 
-    if (!this.aiMode) {
-      this.p2Controls = this.input.keyboard.addKeys({
-        left: 'LEFT',
-        right: 'RIGHT',
-        up: 'UP',
-        attack: 'L'
-      });
-    }
+    this.p2Controls = this.input.keyboard.addKeys({
+      left: 'LEFT',
+      right: 'RIGHT',
+      up: 'UP',
+      attack: 'L'
+    });
 
     this.attackDuration = 150;
 
@@ -139,36 +144,6 @@ export default class MainScene extends Phaser.Scene {
         }
       }
     });
-  }
-
-  createPlayer1() {
-    this.player1 = this.physics.add.sprite(200, 400, this.p1Character.sprite);
-    this.player1.setCollideWorldBounds(true);
-    this.physics.add.collider(this.player1, this.ground);
-    this.physics.add.collider(this.player1, this.platforms);
-    this.player1.body.setBounce(0.2);
-  }
-
-  createPlayer2(character) {
-    this.player2 = this.physics.add.sprite(600, 400, character.sprite);
-    this.player2.setFlipX(true);
-    this.player2.setCollideWorldBounds(true);
-    this.physics.add.collider(this.player2, this.ground);
-    this.physics.add.collider(this.player2, this.platforms);
-    this.player2.body.setBounce(0.2);
-
-    this.p2Character = character;
-  }
-
-  createAIPlayer(character) {
-    this.aiPlayer = this.physics.add.sprite(600, 400, character.sprite);
-    this.aiPlayer.setFlipX(true);
-    this.aiPlayer.setCollideWorldBounds(true);
-    this.physics.add.collider(this.aiPlayer, this.ground);
-    this.physics.add.collider(this.aiPlayer, this.platforms);
-    this.aiPlayer.body.setBounce(0.2);
-
-    this.aiCharacter = character;
   }
 
   setVelocity(player, controls, character) {
@@ -233,33 +208,18 @@ export default class MainScene extends Phaser.Scene {
     }
   }
 
-  updateAI() {
-    const ai = this.aiPlayer.body;
-    const p1X = this.player1.x;
-    const p2X = this.aiPlayer.x;
-    const distance = Math.abs(p1X - p2X);
-
-    if (distance < 60) {
-      ai.setVelocityX(0);
-      this.aiPlayer.setFlip(p2X > p1X);
-      return;
-    }
-
-    const direction = p1X > p2X ? 1 : -1;
-    ai.setVelocityX(direction * this.aiCharacter.speed);
-    this.aiPlayer.setFlipX(direction < 0);
-  }
-
   update() {
     if (this.gameOver) return;
 
-    const p2 = this.aiMode ? this.aiPlayer : this.player2;
-
     this.setVelocity(this.player1.body, this.p1Controls, this.p1Character);
-    this.setDirection(this.player1, p2);
+    this.setVelocity(this.player2.body, this.p2Controls, this.p2Character);
+
+    this.setDirection(this.player1, this.player2);
+    this.setDirection(this.player2, this.player1);
+
     this.handleAttack({
       attacker: this.player1,
-      defender: p2,
+      defender: this.player2,
       hitbox: this.p1Hitbox,
       attackKey: this.p1Controls.attack,
       attackCooldown: this.p1Character.cooldown || 500,
@@ -268,23 +228,16 @@ export default class MainScene extends Phaser.Scene {
       flipXMultiplier: 40,
       scene: this
     });
-
-    if (this.aiMode) {
-      this.updateAI();
-    } else {
-      this.setVelocity(this.player2.body, this.p2Controls, this.p2Character);
-      this.setDirection(this.player2, this.player1);
-      this.handleAttack({
-        attacker: this.player2,
-        defender: this.player1,
-        hitbox: this.p2Hitbox,
-        attackKey: this.p2Controls.attack,
-        attackCooldown: this.p2Character.cooldown || 500,
-        canAttackFlag: this.p2CanAttackRef,
-        hitLandedFlag: this.p2HitLandedRef,
-        flipXMultiplier: 40,
-        scene: this
-      });
-    }
+    this.handleAttack({
+      attacker: this.player2,
+      defender: this.player1,
+      hitbox: this.p2Hitbox,
+      attackKey: this.p2Controls.attack,
+      attackCooldown: this.p2Character.cooldown || 500,
+      canAttackFlag: this.p2CanAttackRef,
+      hitLandedFlag: this.p2HitLandedRef,
+      flipXMultiplier: 40,
+      scene: this
+    });
   }
 }
