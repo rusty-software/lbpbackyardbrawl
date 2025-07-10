@@ -17,10 +17,9 @@ export default class WinScene extends Phaser.Scene {
     this.add.text(310, 320, 'Press R to Restart', { fontSize: '18px', color: '#cccccc' });
 
     this.input.keyboard.once('keydown-R', () => {
-      this.scene.stop('MenuScene');
       this.scene.stop('MainScene');
       this.scene.stop('WinScene');
-      this.scene.start('MenuScene');
+      this.scene.start('MainScene');
     });
   }
 }

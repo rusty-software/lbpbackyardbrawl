@@ -36,20 +36,12 @@ export default class MainScene extends Phaser.Scene {
       }
     });
 
-    if (this.aiMode) {
-      this.tweens.add({
-        targets: this.aiHealthBar,
-        scaleX: this.aiHealth / 100,
-        duration: 150
-      });
-    } else {
-      this.tweens.add({
-        targets: this.p2HealthBar,
-        props: {
-          scaleX: { value: this.p2Health / 100, duration: 150 }
-        }
-      });
-    }
+    this.tweens.add({
+      targets: this.p2HealthBar,
+      props: {
+        scaleX: { value: this.p2Health / 100, duration: 150 }
+      }
+    });
   }
 
   create() {
@@ -114,39 +106,19 @@ export default class MainScene extends Phaser.Scene {
     this.p1HealthBar.setScale(1, 1);
     this.p2HealthBar = this.add.rectangle(780, 20, 200, 20, 0x0000ff).setOrigin(1, 0);
     this.p2HealthBar.setScale(1, 1);
-    this.aiHealthBar = this.add.rectangle(780, 20, 200, 20, 0x00ccff).setOrigin(1, 0);
-    this.aiHealthBar.setScale(1, 1);
-    if (this.aiMode) {
-      this.p2HealthBar.setVisible(false);
-    } else {
-      this.aiHealthBar.setVisible(false);
-    }
     this.updateHealthBars();
 
-    const p1Target = this.aiMode ? this.aiPlayer : this.player2;
-
-    this.physics.add.overlap(this.p1Hitbox, p1Target, () => {
+    this.physics.add.overlap(this.p1Hitbox, this.player2, () => {
       if (!this.p1HitLandedRef.value) {
         this.p1HitLandedRef.value = true;
-
-        let targetHealth;
-        if (this.aiMode) {
-          this.aiHealth = Math.max(0, this.aiHealth - this.p1Character.strength);
-          targetHealth = this.aiHealth;
-        } else {
-          this.p2Health = Math.max(0, this.p2Health - this.p1Character.strength);
-          targetHealth = this.p2Health;
-        }
-        console.log("target health:", targetHealth);
-
-        p1Target.setTint(0xff0000);
+        this.p2Health = Math.max(0, this.p2Health - this.p1Character.strength);
+        this.player2.setTint(0xff0000);
         this.time.delayedCall(100, () => {
-          p1Target.clearTint();
+          this.player2.clearTint();
         });
-
         this.updateHealthBars();
 
-        if (targetHealth <= 0) {
+        if (this.p2Health <= 0) {
           this.handleWin(1);
         }
       }
@@ -164,22 +136,6 @@ export default class MainScene extends Phaser.Scene {
 
         if (this.p1Health <= 0) {
           this.handleWin(2);
-        }
-      }
-    });
-
-    this.physics.add.overlap(this.aiHitbox, this.player1, () => {
-      if (!this.aiHitLandedRef.value) {
-        this.aiHitLandedRef.value = true;
-        this.p1Health = Math.max(0, this.p1Health - this.aiCharacter.strength);
-        this.player1.setTint(0xff0000);
-        this.time.delayedCall(100, () => {
-          this.player1.clearTint();
-        });
-        this.updateHealthBars();
-
-        if (this.p1Health <= 0) {
-          this.handleWin('AI');
         }
       }
     });
@@ -205,7 +161,6 @@ export default class MainScene extends Phaser.Scene {
   }
 
   createAIPlayer(character) {
-    this.aiHealth = 100;
     this.aiPlayer = this.physics.add.sprite(600, 400, character.sprite);
     this.aiPlayer.setFlipX(true);
     this.aiPlayer.setCollideWorldBounds(true);
@@ -214,15 +169,6 @@ export default class MainScene extends Phaser.Scene {
     this.aiPlayer.body.setBounce(0.2);
 
     this.aiCharacter = character;
-
-    this.aiHitbox = this.add.rectangle(0, 0, 40, 30, 0x00ffff, 0.5);
-    this.physics.add.existing(this.aiHitbox);
-    this.aiHitbox.body.setAllowGravity(false);
-    this.aiHitbox.body.setImmovable(true);
-    this.aiHitbox.setVisible(false);
-
-    this.aiCanAttackRef = { value: true };
-    this.aiHitLandedRef = { value: false };
   }
 
   setVelocity(player, controls, character) {
@@ -287,49 +233,21 @@ export default class MainScene extends Phaser.Scene {
     }
   }
 
-  handleAIAttack() {
-    if (!this.aiCanAttackRef.value) return;
-
-    const ai = this.aiPlayer;
-    const p1 = this.player1;
-
-    const distance = Phaser.Math.Distance.Between(ai.x, ai.y, p1.x, p1.y);
-    if (distance > 60) return;
-
-    this.aiCanAttackRef.value = false;
-    this.aiHitLandedRef.value = false;
-
-    const direction = ai.flipX ? -1 : 1;
-    this.aiHitbox.setPosition(ai.x + (direction * 40), ai.y);
-    this.aiHitbox.setVisible(true);
-    this.aiHitbox.body.enable = true
-
-    this.time.delayedCall(150, () => {
-      this.aiHitbox.setVisible(false);
-      this.aiHitbox.body.enable = false;
-    });
-
-    this.time.delayedCall(this.aiCharacter.cooldown || 500, () => {
-      this.aiCanAttackRef.value = true;
-    });
-  }
-
   updateAI() {
     const ai = this.aiPlayer.body;
     const p1X = this.player1.x;
     const p2X = this.aiPlayer.x;
     const distance = Math.abs(p1X - p2X);
 
-    const direction = p1X > p2X ? 1 : -1;
-    ai.setVelocityX(direction * this.aiCharacter.speed);
-    this.aiPlayer.setFlipX(direction < 0);
-
     if (distance < 60) {
       ai.setVelocityX(0);
       this.aiPlayer.setFlip(p2X > p1X);
+      return;
     }
 
-    this.handleAIAttack();
+    const direction = p1X > p2X ? 1 : -1;
+    ai.setVelocityX(direction * this.aiCharacter.speed);
+    this.aiPlayer.setFlipX(direction < 0);
   }
 
   update() {
