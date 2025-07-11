@@ -76,6 +76,7 @@ export default class MainScene extends Phaser.Scene {
     player.controls = controls;
     player.health = 100;
     player.activePowerup = null;
+    player.canUseSpecial = true;
     player.healthBar = this.add.rectangle(
       isPlayer2 ? 780 : 20,
       20,
@@ -262,13 +263,19 @@ export default class MainScene extends Phaser.Scene {
   }
 
   handleSpecialProjectile(player) {
-    if (Phaser.Input.Keyboard.JustDown(player.controls.special)) {
+    if (Phaser.Input.Keyboard.JustDown(player.controls.special) && player.canUseSpecial) {
+      player.canUseSpecial = false;
+
       if (player.canFireHotdogs) {
         this.fireProjectile(player, 'proj_hotdog', 300, 10);
       } else if (player.canFireDoritos) {
         const proj = this.fireProjectile(player, 'proj_dorito', 200, 6);
         proj.setCollideWorldBounds(true).setBounce(1);
       }
+
+      this.time.delayedCall(500, () => {
+        player.canUseSpecial = true;
+      });
     }
   }
 
