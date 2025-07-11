@@ -19,6 +19,7 @@ export default class MainScene extends Phaser.Scene {
     this.load.image('powerup_brisket', 'assets/powerups/brisket.png');
     this.load.image('powerup_popper', 'assets/powerups/popper.png');
     this.load.image('powerup_shield', 'assets/powerups/shield.png');
+    this.load.image('proj_hotdog', 'assets/projectiles/hotdog.png');
   }
 
   create() {
@@ -35,14 +36,28 @@ export default class MainScene extends Phaser.Scene {
     this.add.text(20, 50, `P1: ${this.p1Character.name}`, { fontSize: '16px', color: '#fff' });
     this.add.text(620, 50, `P2: ${this.p2Character.name}`, { fontSize: '16px', color: '#fff' });
 
-    this.p1Controls = this.input.keyboard.addKeys({ left: 'A', right: 'D', up: 'W', attack: 'F' });
-    this.p2Controls = this.input.keyboard.addKeys({ left: 'LEFT', right: 'RIGHT', up: 'UP', attack: 'L' });
+    this.p1Controls = this.input.keyboard.addKeys({
+      left: 'A',
+      right: 'D',
+      up: 'W',
+      attack: 'F',
+      special: 'E'
+    });
+    this.p2Controls = this.input.keyboard.addKeys({
+      left: 'LEFT',
+      right: 'RIGHT',
+      up: 'UP',
+      attack: 'L',
+      special: 'K'
+    });
 
     this.player1 = this.createPlayer(200, 400, this.p1Character, this.p1Controls, false);
     this.player2 = this.createPlayer(600, 400, this.p2Character, this.p2Controls, true);
 
     this.player1.combat = this.setupAttack(this.player1, this.player2, 0xffff00);
     this.player2.combat = this.setupAttack(this.player2, this.player1, 0xff00ff);
+
+    this.projectiles = this.physics.add.group();
 
     this.updateHealthBars();
 
@@ -125,7 +140,7 @@ export default class MainScene extends Phaser.Scene {
   }
 
   handleAttack(player) {
-    const { attack } = player.controls;
+    const { attack, special } = player.controls;
     const { canAttack, hitbox } = player.combat;
 
     if (Phaser.Input.Keyboard.JustDown(attack) && canAttack) {
@@ -140,6 +155,10 @@ export default class MainScene extends Phaser.Scene {
       this.time.delayedCall(30, () => hitbox.body.enable = false);
       this.time.delayedCall(this.attackDuration, () => hitbox.setVisible(false));
       this.time.delayedCall(player.character.cooldown || 500, () => player.combat.canAttack = true);
+    }
+
+    if (Phaser.Input.Keyboard.JustDown(special)) {
+      this.fireProjectile(player, 'proj_hotdog', 300, 10);
     }
   }
 
@@ -207,6 +226,38 @@ export default class MainScene extends Phaser.Scene {
     });
 
     player.activePowerup = { data, timer };
+  }
+
+  fireProjectile(owner, texture, speed, damage) {
+    const direction = owner.flipX ? -1 : 1;
+    const x = owner.x + direction * 40;
+    const y = owner.y;
+
+    const projectile = this.projectiles.create(x, y, texture);
+    projectile.setVelocityX(speed * direction);
+    projectile.setVelocityY(0);
+    projectile.setCollideWorldBounds(true);
+    projectile.body.setAllowGravity(false);
+    projectile.owner = owner;
+    projectile.damage = damage;
+
+    this.physics.add.collider(projectile, this.platforms, () => projectile.destroy());
+
+    const target = owner === this.player1 ? this.player2 : this.player1;
+    this.physics.add.overlap(projectile, target, (proj, victim) => {
+      if (!victim.invincible) {
+        victim.health = Math.max(0, victim.health - damage);
+        this.updateHealthBars();
+        victim.setTint(0xff0000);
+        this.time.delayedCall(100, () => victim.clearTint());
+        proj.destroy();
+        if (victim.health <= 0) this.handleWin(owner === this.player1 ? 1 : 2);
+      }
+    });
+
+    this.time.delayedCall(2000, () => {
+      if (projectile.active) projectile.destroy();
+    });
   }
 
   update() {
