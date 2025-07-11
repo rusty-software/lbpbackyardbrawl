@@ -19,5 +19,27 @@ export const POWERUPS = {
     apply: (player) => { player.invincible = true; },
     revert: (player) => { player.invincible = false; },
     duration: 4000
+  },
+  dorito: {
+    name: 'Dorito Toss',
+    sprite: 'powerup_dorito',
+    apply: (player) => {
+      player.canFireDoritos = true;
+    },
+    revert: (player) => {
+      player.canFireDoritos = false;
+    },
+    duration: 6000
+  },
+  hotdog: {
+    name: 'Hotdog Launcher',
+    sprite: 'powerup_hotdog',
+    apply: (player) => {
+      player.canFireHotdogs = true;
+    },
+    revert: (player) => {
+      player.canFireHotdogs = false;
+    },
+    duration: 6000
   }
 };

@@ -19,7 +19,10 @@ export default class MainScene extends Phaser.Scene {
     this.load.image('powerup_brisket', 'assets/powerups/brisket.png');
     this.load.image('powerup_popper', 'assets/powerups/popper.png');
     this.load.image('powerup_shield', 'assets/powerups/shield.png');
+    this.load.image('powerup_hotdog', 'assets/powerups/hotdog.png');
+    this.load.image('powerup_dorito', 'assets/powerups/dorito.png');
     this.load.image('proj_hotdog', 'assets/projectiles/hotdog.png');
+    this.load.image('proj_dorito', 'assets/projectiles/dorito.png');
   }
 
   create() {
@@ -47,8 +50,8 @@ export default class MainScene extends Phaser.Scene {
       left: 'LEFT',
       right: 'RIGHT',
       up: 'UP',
-      attack: 'L',
-      special: 'K'
+      attack: 'FORWARD_SLASH',
+      special: 'SHIFT'
     });
 
     this.player1 = this.createPlayer(200, 400, this.p1Character, this.p1Controls, false);
@@ -156,10 +159,6 @@ export default class MainScene extends Phaser.Scene {
       this.time.delayedCall(this.attackDuration, () => hitbox.setVisible(false));
       this.time.delayedCall(player.character.cooldown || 500, () => player.combat.canAttack = true);
     }
-
-    if (Phaser.Input.Keyboard.JustDown(special)) {
-      this.fireProjectile(player, 'proj_hotdog', 300, 10);
-    }
   }
 
   schedulePowerupSpawn() {
@@ -258,12 +257,28 @@ export default class MainScene extends Phaser.Scene {
     this.time.delayedCall(2000, () => {
       if (projectile.active) projectile.destroy();
     });
+
+    return projectile;
+  }
+
+  handleSpecialProjectile(player) {
+    if (Phaser.Input.Keyboard.JustDown(player.controls.special)) {
+      if (player.canFireHotdogs) {
+        this.fireProjectile(player, 'proj_hotdog', 300, 10);
+      } else if (player.canFireDoritos) {
+        const proj = this.fireProjectile(player, 'proj_dorito', 200, 6);
+        proj.setCollideWorldBounds(true).setBounce(1);
+      }
+    }
   }
 
   update() {
     if (this.gameOver) return;
 
-    [this.player1, this.player2].forEach(player => this.setVelocity(player));
+    [this.player1, this.player2].forEach(player => {
+      this.setVelocity(player)
+      this.handleSpecialProjectile(player);
+    });
     this.setDirection(this.player1, this.player2);
     this.setDirection(this.player2, this.player1);
     this.handleAttack(this.player1);
