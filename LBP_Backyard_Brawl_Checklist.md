@@ -37,12 +37,12 @@
 ## **PHASE 3: Power-Ups, Specials & Stage Variety**
 ### 🎯 Goal: Gameplay depth and LBP flavor
 
-- [ ] Add power-up system (spawn timer, pickups, effects)
-    - [ ] Brisket Boost (+Strength)
-    - [ ] Jalapeño Popper (+Speed)
-    - [ ] Poker Chip Shield (Invincibility)
-    - [ ] Hot Dog Launcher (temporary ranged weapon)
-    - [ ] Poker Chip Toss (bouncing projectile)
+- [X] Add power-up system (spawn timer, pickups, effects)
+    - [X] Brisket Boost (+Strength)
+    - [X] Jalapeño Popper (+Speed)
+    - [X] Poker Chip Shield (Invincibility)
+    - [X] Hot Dog Launcher (temporary ranged weapon)
+    - [X] Dorito Toss (bouncing projectile)
 - [ ] Create per-character special move (primarily ranged attacks, with cooldown or charge meter)
 - [ ] Implement visual/audio effects for ranged attacks (projectile spawn, travel, impact)
 - [ ] Add ranged attack hit detection and balancing (damage, speed, cooldown)

@@ -273,6 +273,8 @@ export default class MainScene extends Phaser.Scene {
       } else if (player.canFireDoritos) {
         const proj = this.fireProjectile(player, 'proj_dorito', 200, 6);
         proj.setCollideWorldBounds(true).setBounce(1);
+      } else if (player.character.special) {
+        player.character.special(this, player);
       }
 
       this.time.delayedCall(500, () => {
