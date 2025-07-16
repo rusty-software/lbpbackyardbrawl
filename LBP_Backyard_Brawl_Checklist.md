@@ -43,7 +43,7 @@
     - [X] Poker Chip Shield (Invincibility)
     - [X] Hot Dog Launcher (temporary ranged weapon)
     - [X] Dorito Toss (bouncing projectile)
-- [ ] Create per-character special move (primarily ranged attacks, with cooldown or charge meter)
+- [X] Create per-character special move (primarily ranged attacks, with cooldown or charge meter)
 - [ ] Implement visual/audio effects for ranged attacks (projectile spawn, travel, impact)
 - [ ] Add ranged attack hit detection and balancing (damage, speed, cooldown)
 - [ ] Add at least 2 LBP-themed stages (pool, grill, game room)
