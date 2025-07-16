@@ -1,3 +1,4 @@
+import { STAGES } from '../stages.js';
 import { POWERUPS } from '../powerups.js';
 
 export default class MainScene extends Phaser.Scene {
@@ -15,8 +16,7 @@ export default class MainScene extends Phaser.Scene {
   preload() {
     this.load.image('chase', 'assets/chase.png');
     this.load.image('curtis', 'assets/curtis.png');
-    // this.load.image('bg', 'assets/sky.png');
-    this.load.image('bg', 'assets/backyard.png');
+    // this.load.image('bg', 'assets/backyard.png');
     this.load.image('platform', 'assets/platform.png');
     this.load.image('powerup_brisket', 'assets/powerups/brisket.png');
     this.load.image('powerup_popper', 'assets/powerups/popper.png');
@@ -25,16 +25,28 @@ export default class MainScene extends Phaser.Scene {
     this.load.image('powerup_dorito', 'assets/powerups/dorito.png');
     this.load.image('proj_hotdog', 'assets/projectiles/hotdog.png');
     this.load.image('proj_dorito', 'assets/projectiles/dorito.png');
+
+    this.load.image('backyard', 'assets/backgrounds/backyard.png');
+    this.load.image('driveway', 'assets/backgrounds/driveway.png');
+    this.load.image('game-room', 'assets/backgrounds/game-room.png');
+
+    this.load.audio('fightMusic1', 'assets/audio/fight-soundtrack-01.mp3');
+    this.load.audio('fightMusic2', 'assets/audio/fight-soundtrack-02.mp3');
+    this.load.audio('fightMusic3', 'assets/audio/fight-soundtrack-03.mp3');
   }
 
   create() {
     this.gameOver = false;
     this.attackDuration = 150;
 
-    this.add.image(400, 300, 'bg').setDepth(-1);
+    const stage = Phaser.Utils.Array.GetRandom(STAGES);
+    this.currentStage = stage;
 
+    this.add.image(400, 300, stage.background).setDepth(-1);
+    this.music = this.sound.add(stage.music, { loop: true, volume: 0.6 });
+    this.music.play();
     this.platforms = this.physics.add.staticGroup();
-    [[400, 590, 2], [400, 400, 0.5], [75, 250, 0.4], [725, 220, 0.4]].forEach(([x, y, scale]) => {
+    stage.platforms.forEach(([x, y, scale]) => {
       this.platforms.create(x, y, 'platform').setScale(scale).refreshBody();
     });
 
@@ -130,6 +142,7 @@ export default class MainScene extends Phaser.Scene {
 
   handleWin(winner) {
     if (this.gameOver) return;
+    this.music.stop();
     const winnerName = winner === 1 ? this.p1Name : this.p2Name;
     const loserName = winner === 1 ? this.p2Name : this.p1Name;
     this.gameOver = true;
