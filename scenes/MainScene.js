@@ -8,6 +8,8 @@ export default class MainScene extends Phaser.Scene {
   init(data) {
     this.p1Character = data.p1Character;
     this.p2Character = data.p2Character;
+    this.p1Name = data.p1Name;
+    this.p2Name = data.p2Name;
   }
 
   preload() {
@@ -36,8 +38,15 @@ export default class MainScene extends Phaser.Scene {
       this.platforms.create(x, y, 'platform').setScale(scale).refreshBody();
     });
 
-    this.add.text(20, 50, `P1: ${this.p1Character.name}`, { fontSize: '16px', color: '#fff' });
-    this.add.text(620, 50, `P2: ${this.p2Character.name}`, { fontSize: '16px', color: '#fff' });
+    this.add.text(20, 50, `${this.p1Name}: ${this.p1Character.name}`, {
+      fontSize: '16px',
+      color: '#fff'
+    });
+
+    this.add.text(620, 50, `${this.p2Name}: ${this.p2Character.name}`, {
+      fontSize: '16px',
+      color: '#fff'
+    });
 
     this.p1Controls = this.input.keyboard.addKeys({
       left: 'A',
@@ -121,8 +130,14 @@ export default class MainScene extends Phaser.Scene {
 
   handleWin(winner) {
     if (this.gameOver) return;
+    const winnerName = winner === 1 ? this.p1Name : this.p2Name;
+    const loserName = winner === 1 ? this.p2Name : this.p1Name;
     this.gameOver = true;
-    this.scene.launch('WinScene', { winner });
+    this.scene.launch('WinScene', {
+      winner: winnerName,
+      p1Name: this.p1Name,
+      p2Name: this.p2Name
+    });
     this.time.delayedCall(300, () => this.scene.pause());
   }
 
