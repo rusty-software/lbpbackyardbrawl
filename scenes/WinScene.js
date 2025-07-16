@@ -5,8 +5,7 @@ export default class WinScene extends Phaser.Scene {
 
   init(data) {
     this.winner = data.winner;
-    this.p1Name = data.p1Name;
-    this.p2Name = data.p2Name;
+    this.loser = data.loser;
   }
 
   preload() {
@@ -17,13 +16,10 @@ export default class WinScene extends Phaser.Scene {
     this.music = this.sound.add('winMusic', { loop: true });
     this.music.play();
 
-    const winnerName = this.winner === 1 ? this.p1Name : this.p2Name;
-    const loserName = this.winner === 1 ? this.p2Name : this.p1Name;
-
-    this.updateScores(winnerName, loserName);
+    this.updateScores(this.winner, this.loser);
 
     this.add.rectangle(400, 250, 500, 200, 0x000000, 0.6);
-    this.add.text(400, 200, `${winnerName} Wins!`, {
+    this.add.text(400, 200, `${this.winner} Wins!`, {
       fontSize: '36px',
       fontStyle: 'bold',
       color: '#ffffff'

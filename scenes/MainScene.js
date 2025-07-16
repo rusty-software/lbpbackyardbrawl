@@ -135,8 +135,7 @@ export default class MainScene extends Phaser.Scene {
     this.gameOver = true;
     this.scene.launch('WinScene', {
       winner: winnerName,
-      p1Name: this.p1Name,
-      p2Name: this.p2Name
+      loser: loserName
     });
     this.time.delayedCall(300, () => this.scene.pause());
   }

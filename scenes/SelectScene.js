@@ -66,7 +66,7 @@ export default class SelectScene extends Phaser.Scene {
     this.p2Name = this.add.text(550, 320, '', { fontSize: '20px', color: '#fff' });
 
     this.p1Controls = this.add.text(50, 360, '', { fontSize: '14px', color: '#aaa' });
-    this.p2Controls = this.add.text(450, 360, '', { fontSize: '14px', color: '#aaa' });
+    this.p2Controls = this.add.text(750, 360, '', { fontSize: '14px', color: '#aaa' }).setOrigin(1, 0);
 
     this.p1Special = this.add.text(150, 340, '', { fontSize: '14px', color: '#ffcc66' });
     this.p2Special = this.add.text(550, 340, '', { fontSize: '14px', color: '#ffcc66' });
@@ -79,14 +79,20 @@ export default class SelectScene extends Phaser.Scene {
           const p1Key = this.characterKeys[this.p1Index];
           this.p1Sprite.setTexture(p1Key);
           this.p1Name.setText(`${this.p1NameInitials}: ${CHARACTERS[p1Key].name}`);
+          this.p1Controls.setText(`${this.p1NameInitials} Controls:\nMove: A/D\nJump: W\nAttack: F\nSpecial: E`);
           this.p1Special.setText(`Special: ${CHARACTERS[p1Key].specialName || '—'}`);
+
           this.p2Sprite.setVisible(false);
           this.p2Name.setVisible(false);
+          this.p2Controls.setText('');
+          this.p2Special.setText('');
         } else {
           const p2Key = this.availableForP2[this.p2Index];
           this.p2Sprite.setTexture(p2Key);
           this.p2Name.setText(`${this.p2NameInitials}: ${CHARACTERS[p2Key].name}`);
+          this.p2Controls.setText(`${this.p2NameInitials} Controls:\nMove: ←/→\nJump: ↑\nAttack: \\\nSpecial: SHIFT`);
           this.p2Special.setText(`Special: ${CHARACTERS[p2Key].specialName || '—'}`);
+
           this.p1Sprite.setTexture(this.p1CharacterKey);
           this.p2Sprite.setVisible(true);
           this.p2Name.setVisible(true);
@@ -100,8 +106,8 @@ export default class SelectScene extends Phaser.Scene {
   }
 
   drawInstructions() {
-    this.instructionBg = this.add.rectangle(400, 420, 620, 50, 0x000000, 0.4).setOrigin(0.5);
-    this.instructionsText = this.add.text(400, 420, '', {
+    this.instructionBg = this.add.rectangle(400, 520, 620, 50, 0x000000, 0.4).setOrigin(0.5);
+    this.instructionsText = this.add.text(400, 520, '', {
       fontSize: '18px',
       color: '#ccc',
       wordWrap: { width: 600 }
