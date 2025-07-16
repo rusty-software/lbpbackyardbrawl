@@ -14,9 +14,7 @@ export default class MainScene extends Phaser.Scene {
     this.load.image('chase', 'assets/chase.png');
     this.load.image('curtis', 'assets/curtis.png');
     // this.load.image('bg', 'assets/sky.png');
-    // this.load.image('bg', 'assets/background-01.png');
-    this.load.image('bg', 'assets/background-02.png');
-    // this.load.image('bg', 'assets/background-03.png');
+    this.load.image('bg', 'assets/backyard.png');
     this.load.image('platform', 'assets/platform.png');
     this.load.image('powerup_brisket', 'assets/powerups/brisket.png');
     this.load.image('powerup_popper', 'assets/powerups/popper.png');
