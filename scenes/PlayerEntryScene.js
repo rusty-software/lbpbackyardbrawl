@@ -3,7 +3,14 @@ export default class PlayerEntryScene extends Phaser.Scene {
     super('PlayerEntryScene');
   }
 
+  preload() {
+    this.load.audio('selectMusic', 'assets/audio/select-soundtrack.mp3');
+  }
+
   create() {
+    this.music = this.sound.add('selectMusic', { loop: true });
+    this.music.play();
+
     this.players = [
       { label: 'Player One', initials: '', done: false },
       { label: 'Player Two', initials: '', done: false }

@@ -47,6 +47,7 @@ export default class SelectScene extends Phaser.Scene {
         const p2CharacterKey = this.availableForP2[this.p2Index];
         const p1Char = CHARACTERS[this.p1CharacterKey];
         const p2Char = CHARACTERS[p2CharacterKey];
+        this.scene.get('PlayerEntryScene').music.stop();
         this.scene.start('MainScene', {
           p1Character: p1Char,
           p2Character: p2Char,

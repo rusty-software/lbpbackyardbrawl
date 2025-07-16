@@ -6,10 +6,13 @@ export default class TitleScene extends Phaser.Scene {
   preload() {
     this.load.image('splash', 'assets/title.png');
     this.load.bitmapFont('peaberry', 'assets/fonts/peaberry.png', 'assets/fonts/peaberry.fnt');
-
+    this.load.audio('titleMusic', 'assets/audio/title-soundtrack.mp3');
   }
 
   create() {
+    this.music = this.sound.add('titleMusic', { loop: true });
+    this.music.play();
+
     this.add.image(400, 300, 'splash');
 
     this.add.bitmapText(400, 100, 'peaberry', 'LBP Backyard Brawl', 48).setOrigin(0.5);
@@ -33,6 +36,7 @@ export default class TitleScene extends Phaser.Scene {
 
   update() {
     if (Phaser.Input.Keyboard.JustDown(this.enterKey)) {
+      this.music.stop();
       this.scene.start('PlayerEntryScene');
     }
   }

@@ -9,7 +9,14 @@ export default class WinScene extends Phaser.Scene {
     this.p2Name = data.p2Name;
   }
 
+  preload() {
+    this.load.audio('winMusic', 'assets/audio/win-soundtrack.mp3');
+  }
+
   create() {
+    this.music = this.sound.add('winMusic', { loop: true });
+    this.music.play();
+
     const winnerName = this.winner === 1 ? this.p1Name : this.p2Name;
     const loserName = this.winner === 1 ? this.p2Name : this.p1Name;
 
@@ -32,6 +39,7 @@ export default class WinScene extends Phaser.Scene {
 
   update() {
     if (Phaser.Input.Keyboard.JustDown(this.enterKey)) {
+      this.music.stop();
       this.cameras.main.fadeOut(500, 0, 0, 0);
       this.time.delayedCall(500, () => {
         this.scene.stop('TitleScene');
