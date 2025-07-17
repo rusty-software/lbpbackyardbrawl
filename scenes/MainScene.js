@@ -16,10 +16,11 @@ export default class MainScene extends Phaser.Scene {
   preload() {
     this.load.image('platform', 'assets/platform.png');
     this.load.image('powerup_brisket', 'assets/powerups/brisket.png');
+    this.load.image('powerup_dorito', 'assets/powerups/dorito.png');
+    this.load.image('powerup_hotdog', 'assets/powerups/hotdog.png');
+    this.load.image('powerup_margarita', 'assets/powerups/margarita.png');
     this.load.image('powerup_popper', 'assets/powerups/popper.png');
     this.load.image('powerup_shield', 'assets/powerups/shield.png');
-    this.load.image('powerup_hotdog', 'assets/powerups/hotdog.png');
-    this.load.image('powerup_dorito', 'assets/powerups/dorito.png');
 
     this.load.image('proj_book', 'assets/projectiles/book.png');
     this.load.image('proj_brokenheartking', 'assets/projectiles/brokenheartking.png');
@@ -254,7 +255,7 @@ export default class MainScene extends Phaser.Scene {
       old.data.revert(player);
     }
 
-    data.apply(player);
+    data.apply(player, this);
     player.setTint(0xffff00);
 
     const timer = this.time.delayedCall(data.duration, () => {

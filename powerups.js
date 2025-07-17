@@ -41,5 +41,15 @@ export const POWERUPS = {
       player.canFireHotdogs = false;
     },
     duration: 6000
+  },
+  margarita: {
+    name: 'Margarita',
+    sprite: 'powerup_margarita',
+    apply: (player, scene) => {
+      player.health = Math.min(100, player.health + 20);
+      scene.updateHealthBars();
+    },
+    revert: () => { },
+    duration: 0
   }
 };
