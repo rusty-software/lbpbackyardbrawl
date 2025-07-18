@@ -42,6 +42,8 @@ export default class MainScene extends Phaser.Scene {
     this.load.image('driveway', 'assets/backgrounds/driveway.png');
     this.load.image('game-room', 'assets/backgrounds/game-room.png');
 
+    this.load.audio('roundStart', 'assets/audio/fight.mp3');
+
     this.load.audio('fightMusic1', 'assets/audio/fight-soundtrack-01.mp3');
     this.load.audio('fightMusic2', 'assets/audio/fight-soundtrack-02.mp3');
     this.load.audio('fightMusic3', 'assets/audio/fight-soundtrack-03.mp3');
@@ -59,6 +61,27 @@ export default class MainScene extends Phaser.Scene {
     this.music = this.sound.add(stage.music, { loop: true, volume: 0.6 });
     this.music.play();
 
+    const bannerText = this.add.text(400, 300, stage.displayName || 'Get Ready!', {
+      fontSize: '32px',
+      fontFamily: 'Courier',
+      color: '#ffffff',
+      backgroundColor: '#000000',
+      padding: { x: 20, y: 10 },
+      align: 'center'
+    }).setOrigin(0.5).setDepth(100).setAlpha(0);
+
+    this.sound.play('roundStart', { volume: 0.8 });
+
+    this.tweens.add({
+      targets: bannerText,
+      alpha: 1,
+      duration: 500,
+      ease: 'Power2',
+      yoyo: true,
+      hold: 1500,
+      onComplete: () => bannerText.destroy()
+    });
+
     this.platforms = this.physics.add.staticGroup();
     stage.platforms.forEach(([x, y, scale]) => {
       this.platforms.create(x, y, 'platform').setScale(scale).refreshBody();
@@ -71,15 +94,17 @@ export default class MainScene extends Phaser.Scene {
     this.specialBars.p1.setDepth(10);
     this.specialBars.p2.setDepth(10);
 
-    this.add.text(20, 50, `${this.p1Name}: ${this.p1Character.name}`, {
-      fontSize: '16px',
-      color: '#fff'
-    });
+    this.p1HudBox = this.add.container(20, 45);
+    const p1Bg = this.add.rectangle(0, 0, 140, 40, 0x550000).setOrigin(0, 0);
+    const p1Initials = this.add.text(8, 2, this.p1Name, { fontSize: '14px', color: '#ffffff' });
+    const p1Char = this.add.text(8, 20, this.p1Character.name, { fontSize: '14px', color: '#ffcc66' });
+    this.p1HudBox.add([p1Bg, p1Initials, p1Char]);
 
-    this.add.text(620, 50, `${this.p2Name}: ${this.p2Character.name}`, {
-      fontSize: '16px',
-      color: '#fff'
-    });
+    this.p2HudBox = this.add.container(640, 45);
+    const p2Bg = this.add.rectangle(0, 0, 140, 40, 0x003355).setOrigin(0, 0);
+    const p2Initials = this.add.text(8, 2, this.p2Name, { fontSize: '14px', color: '#ffffff' });
+    const p2Char = this.add.text(8, 20, this.p2Character.name, { fontSize: '14px', color: '#ffcc66' });
+    this.p2HudBox.add([p2Bg, p2Initials, p2Char]);
 
     this.p1Controls = this.input.keyboard.addKeys({
       left: 'A',

@@ -1,6 +1,7 @@
 export const STAGES = [
   {
     key: 'backyard',
+    displayName: 'Backyard Battle',
     background: 'backyard',
     music: 'fightMusic1',
     platforms: [
@@ -12,6 +13,7 @@ export const STAGES = [
   },
   {
     key: 'driveway',
+    displayName: 'Driveway Duel',
     background: 'driveway',
     music: 'fightMusic2',
     platforms: [
@@ -22,6 +24,7 @@ export const STAGES = [
   },
   {
     key: 'game-room',
+    displayName: 'Game Room Grapple',
     background: 'game-room',
     music: 'fightMusic3',
     platforms: [
