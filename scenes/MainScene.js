@@ -324,6 +324,57 @@ export default class MainScene extends Phaser.Scene {
     player.activePowerup = { data, timer };
   }
 
+  showImpactEffect(x, y, color = 0xffffff, maxRadius = 15, duration = 150) {
+    const gfx = this.add.graphics().setDepth(50);
+    let elapsed = 0;
+    const steps = 10;
+    const stepTime = duration / steps;
+
+    const timer = this.time.addEvent({
+      delay: stepTime,
+      repeat: steps - 1,
+      callback: () => {
+        elapsed += stepTime;
+        const pct = elapsed / duration;
+        const radius = maxRadius * pct;
+
+        gfx.clear();
+        gfx.fillStyle(color, 1 - pct); // fade out as it grows
+        gfx.fillCircle(x, y, radius);
+      },
+      callbackScope: this,
+      onComplete: () => gfx.destroy()
+    });
+  }
+
+  startProjectileTrail(projectile, color = 0xffffff) {
+    const trailTimer = this.time.addEvent({
+      delay: 40,
+      loop: true,
+      callback: () => {
+        if (!projectile.active) {
+          trailTimer.remove(); // Stop if projectile is gone
+          return;
+        }
+
+        const ghost = this.add.image(projectile.x, projectile.y, projectile.texture.key)
+          .setDepth(0)
+          .setAlpha(0.5)
+          .setScale(projectile.scaleX, projectile.scaleY)
+          .setRotation(projectile.rotation)
+          .setTint(color);
+
+        this.tweens.add({
+          targets: ghost,
+          alpha: 0,
+          duration: 200,
+          onComplete: () => ghost.destroy()
+        });
+      }
+    });
+  }
+
+
   fireProjectile(owner, texture, speed, damage) {
     const direction = owner.flipX ? -1 : 1;
     const x = owner.x + direction * 40;
@@ -336,12 +387,16 @@ export default class MainScene extends Phaser.Scene {
     projectile.body.setAllowGravity(false);
     projectile.owner = owner;
     projectile.damage = damage;
+    this.startProjectileTrail(projectile, owner === this.player1 ? 0xffff00 : 0xff00ff);
 
     this.physics.add.collider(projectile, this.platforms, () => projectile.destroy());
 
     const target = owner === this.player1 ? this.player2 : this.player1;
     this.physics.add.overlap(projectile, target, (proj, victim) => {
       if (!victim.invincible) {
+        const color = (owner === this.player1) ? 0xffff00 : 0xff00ff;
+        this.showImpactEffect(proj.x, proj.y, color);
+
         victim.health = Math.max(0, victim.health - damage);
         this.updateHealthBars();
         victim.setTint(0xff0000);
