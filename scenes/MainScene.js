@@ -83,8 +83,17 @@ export default class MainScene extends Phaser.Scene {
     });
 
     this.platforms = this.physics.add.staticGroup();
-    stage.platforms.forEach(([x, y, scale]) => {
-      this.platforms.create(x, y, 'platform').setScale(scale).refreshBody();
+    const ground = this.add.rectangle(400, 590, 800, 64, 0x24500f);
+    this.physics.add.existing(ground, true);
+    this.platforms.add(ground);
+
+    stage.platforms.forEach(([x, y, width]) => {
+      const platform = this.add.rectangle(x, y, width, 24, stage.platformColor || 0x4444aa)
+        .setStrokeStyle(2, 0xffffff)
+        .setOrigin(0.5);
+
+      this.physics.add.existing(platform, true);
+      this.platforms.add(platform);
     });
 
     this.specialBars = {

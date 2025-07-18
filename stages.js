@@ -5,10 +5,9 @@ export const STAGES = [
     background: 'backyard',
     music: 'fightMusic1',
     platforms: [
-      [400, 590, 2],
-      [400, 400, 0.5],
-      [75, 250, 0.4],
-      [725, 220, 0.4]
+      [400, 400, 200],
+      [75, 250, 160],
+      [725, 220, 160]
     ]
   },
   {
@@ -17,9 +16,8 @@ export const STAGES = [
     background: 'driveway',
     music: 'fightMusic2',
     platforms: [
-      [400, 590, 2],
-      [250, 380, 0.55],
-      [550, 380, 0.55]
+      [250, 380, 220],
+      [550, 380, 220]
     ]
   },
   {
@@ -28,10 +26,9 @@ export const STAGES = [
     background: 'game-room',
     music: 'fightMusic3',
     platforms: [
-      [400, 590, 2],
-      [200, 400, 0.5],
-      [600, 400, 0.5],
-      [400, 250, 0.4]
+      [200, 400, 200],
+      [600, 400, 200],
+      [400, 250, 160]
     ]
   }
 ];
