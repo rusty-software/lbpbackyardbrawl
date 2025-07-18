@@ -107,6 +107,29 @@ export default class MainScene extends Phaser.Scene {
     this.updateHealthBars();
 
     this.schedulePowerupSpawn();
+
+    this.poisonEffect = (victim) => {
+      const ticks = 5;
+      const damagePerTick = 2;
+
+      const poison = this.time.addEvent({
+        delay: 1000,
+        repeat: ticks - 1,
+        callback: () => {
+          if (!victim.invincible && victim.active) {
+            victim.health = Math.max(0, victim.health - damagePerTick);
+            this.updateHealthBars();
+            victim.setTint(0x00ff00);
+            this.time.delayedCall(150, () => victim.clearTint());
+            if (victim.health <= 0) {
+              poison.remove();
+              this.handleWin(victim === this.player1 ? 2 : 1);
+            }
+          }
+        }
+      });
+    };
+
   }
 
   createPlayer(x, y, characterData, controls, isPlayer2) {
@@ -389,7 +412,6 @@ export default class MainScene extends Phaser.Scene {
     });
   }
 
-
   fireProjectile(owner, texture, speed, damage) {
     const direction = owner.flipX ? -1 : 1;
     const x = owner.x + direction * 40;
@@ -446,7 +468,7 @@ export default class MainScene extends Phaser.Scene {
         player.character.special(this, player);
       }
 
-      this.time.delayedCall(500, () => {
+      this.time.delayedCall(player.character.cooldown || 1000, () => {
         player.canUseSpecial = true;
       });
     }
