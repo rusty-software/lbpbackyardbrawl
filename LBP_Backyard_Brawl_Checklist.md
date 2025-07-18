@@ -45,9 +45,9 @@
     - [X] Dorito Toss (bouncing projectile)
 - [X] Create per-character special move (primarily ranged attacks, with cooldown or charge meter)
 - [ ] Implement visual/audio effects for ranged attacks (projectile spawn, travel, impact)
-- [ ] Add ranged attack hit detection and balancing (damage, speed, cooldown)
-- [ ] Add at least 2 LBP-themed stages (pool, grill, game room)
-- [ ] Add hazard logic (e.g. slippery tiles, fire spots)
+- [X] Add ranged attack hit detection and balancing (damage, speed, cooldown)
+- [X] Add at least 2 LBP-themed stages (pool, grill, game room)
+~~- [ ] Add hazard logic (e.g. slippery tiles, fire spots)~~
 - [ ] Add ambient sounds (grill sizzle, pool splash, crowd noise)
 
 ### 🏁 Milestone 3: Feature-Complete Build
@@ -60,13 +60,13 @@
 - [ ] Finalize HUD styling (animated bars, icons, meters)
 - [ ] Add pause & restart flow
 - [ ] Add taunt button (funny character quotes or animations)
-- [ ] Add intro screen
-- [ ] Add audio (character sounds, sfx, theme music)
-- [ ] Polish win/loss screens with LBP inside jokes
+- [X] Add intro screen
+- [X] Add audio (character sounds, sfx, theme music)
+- [X] Polish win/loss screens with LBP inside jokes
 - [ ] Optional: LBP Memory Card collectibles
 - [ ] Optional: BBQ Timer survival mode
 - [ ] Final testing & bug squashing
-- [ ] Package for sharing (upload or zip bundle)
+- [X] Package for sharing (upload or zip bundle)
 
 ### 🏁 Milestone 4: v1.0 Public Build
 

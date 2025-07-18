@@ -55,12 +55,21 @@ export default class MainScene extends Phaser.Scene {
     this.currentStage = stage;
 
     this.add.image(400, 300, stage.background).setDepth(-1);
+
     this.music = this.sound.add(stage.music, { loop: true, volume: 0.6 });
     this.music.play();
+
     this.platforms = this.physics.add.staticGroup();
     stage.platforms.forEach(([x, y, scale]) => {
       this.platforms.create(x, y, 'platform').setScale(scale).refreshBody();
     });
+
+    this.specialBars = {
+      p1: this.add.graphics(),
+      p2: this.add.graphics()
+    };
+    this.specialBars.p1.setDepth(10);
+    this.specialBars.p2.setDepth(10);
 
     this.add.text(20, 50, `${this.p1Name}: ${this.p1Character.name}`, {
       fontSize: '16px',
@@ -146,6 +155,7 @@ export default class MainScene extends Phaser.Scene {
 
     return state;
   }
+
 
   updateHealthBars() {
     this.tweens.add({ targets: this.player1.healthBar, props: { scaleX: { value: this.player1.health / 100, duration: 150 } } });
@@ -325,8 +335,36 @@ export default class MainScene extends Phaser.Scene {
     }
   }
 
+  updateSpecialBar(bar, player) {
+    bar.clear();
+    const x = player.x - 20;
+    const y = player.y + 50;
+    const width = 40;
+    const height = 6;
+
+    if (player.canUseSpecial) {
+      bar.fillStyle(0x00ff00);
+      bar.fillRect(x, y, width, height);
+      bar.lineStyle(1, 0xffffff);
+      bar.strokeRect(x, y, width, height);
+
+    } else {
+      bar.fillStyle(0x444444, 0.5);
+      bar.fillRect(x, y, width, height);
+      bar.lineStyle(1, 0x888888);
+      bar.strokeRect(x, y, width, height);
+    }
+  }
+
+  updateSpecialBars() {
+    this.updateSpecialBar(this.specialBars.p1, this.player1);
+    this.updateSpecialBar(this.specialBars.p2, this.player2);
+
+  }
+
   update() {
     if (this.gameOver) return;
+    this.updateSpecialBars();
 
     [this.player1, this.player2].forEach(player => {
       this.setVelocity(player)
