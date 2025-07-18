@@ -13,41 +13,7 @@ export default class MainScene extends Phaser.Scene {
     this.p2Name = data.p2Name;
   }
 
-  preload() {
-    this.load.image('platform', 'assets/platform.png');
-    this.load.image('powerup_brisket', 'assets/powerups/brisket.png');
-    this.load.image('powerup_dorito', 'assets/powerups/dorito.png');
-    this.load.image('powerup_hotdog', 'assets/powerups/hotdog.png');
-    this.load.image('powerup_margarita', 'assets/powerups/margarita.png');
-    this.load.image('powerup_popper', 'assets/powerups/popper.png');
-    this.load.image('powerup_shield', 'assets/powerups/shield.png');
-
-    this.load.image('proj_book', 'assets/projectiles/book.png');
-    this.load.image('proj_brokenheartking', 'assets/projectiles/brokenheartking.png');
-    this.load.image('proj_cookiedough', 'assets/projectiles/cookiedough.png');
-    this.load.image('proj_dorito', 'assets/projectiles/dorito.png');
-    this.load.image('proj_envelope', 'assets/projectiles/envelope.png');
-    this.load.image('proj_hdmicoil', 'assets/projectiles/hdmicoil.png');
-    this.load.image('proj_hotdog', 'assets/projectiles/hotdog.png');
-    this.load.image('proj_lightningball', 'assets/projectiles/lightningball.png');
-    this.load.image('proj_mandown', 'assets/projectiles/mandown.png');
-    this.load.image('proj_milkdrop', 'assets/projectiles/milkdrop.png');
-    this.load.image('proj_roboclamp', 'assets/projectiles/roboclamp.png');
-    this.load.image('proj_rocketship', 'assets/projectiles/rocketship.png');
-    this.load.image('proj_scorpionsauce', 'assets/projectiles/scorpionsauce.png');
-    this.load.image('proj_spade', 'assets/projectiles/spade.png');
-    this.load.image('proj_waterdrop', 'assets/projectiles/waterdrop.png');
-
-    this.load.image('backyard', 'assets/backgrounds/backyard.png');
-    this.load.image('driveway', 'assets/backgrounds/driveway.png');
-    this.load.image('game-room', 'assets/backgrounds/game-room.png');
-
-    this.load.audio('roundStart', 'assets/audio/fight.mp3');
-
-    this.load.audio('fightMusic1', 'assets/audio/fight-soundtrack-01.mp3');
-    this.load.audio('fightMusic2', 'assets/audio/fight-soundtrack-02.mp3');
-    this.load.audio('fightMusic3', 'assets/audio/fight-soundtrack-03.mp3');
-  }
+  preload() { }
 
   create() {
     this.gameOver = false;
@@ -284,7 +250,7 @@ export default class MainScene extends Phaser.Scene {
     const x = Phaser.Math.Between(100, 700);
     const y = Phaser.Math.Between(100, 400);
 
-    const powerup = this.physics.add.sprite(x, y, def.sprite)
+    const powerup = this.physics.add.sprite(x, y, def.key)
       .setOrigin(0.5)
       .setDepth(1)
       .setData('type', type)

@@ -5,23 +5,7 @@ export default class SelectScene extends Phaser.Scene {
     super({ key: 'SelectScene' });
   }
 
-  preload() {
-    this.load.image('bill', 'assets/bill.png');
-    this.load.image('chase', 'assets/chase.png');
-    this.load.image('curtis', 'assets/curtis.png');
-    this.load.image('damon', 'assets/damon.png');
-    this.load.image('garner', 'assets/garner.png');
-    this.load.image('keith', 'assets/keith.png');
-    this.load.image('nick', 'assets/nick.png');
-    this.load.image('phil', 'assets/phil.png');
-    this.load.image('po', 'assets/po.png');
-    this.load.image('rusty', 'assets/rusty.png');
-    this.load.image('sam', 'assets/sam.png');
-    this.load.image('tai', 'assets/tai.png');
-    this.load.image('todd', 'assets/todd.png');
-    this.load.image('tony', 'assets/tony.png');
-    this.load.image('willy', 'assets/willy.png');
-  }
+  preload() { }
 
   create(data) {
     this.p1NameInitials = data.p1Name;

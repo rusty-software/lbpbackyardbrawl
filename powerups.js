@@ -1,28 +1,32 @@
 export const POWERUPS = {
   brisket: {
     name: 'Brisket Boost',
-    sprite: 'powerup_brisket',
+    key: 'powerup_brisket',
+    sprite: 'brisket',
     apply: (player) => { player.character.strength += 10; },
     revert: (player) => { player.character.strength -= 10; },
     duration: 5000
   },
   popper: {
     name: 'Jalapeño Popper',
-    sprite: 'powerup_popper',
+    key: 'powerup_popper',
+    sprite: 'popper',
     apply: (player) => { player.character.speed += 50; },
     revert: (player) => { player.character.speed -= 50; },
     duration: 5000
   },
   shield: {
     name: 'Poker Chip Shield',
-    sprite: 'powerup_shield',
+    key: 'powerup_shield',
+    sprite: 'shield',
     apply: (player) => { player.invincible = true; },
     revert: (player) => { player.invincible = false; },
     duration: 4000
   },
   dorito: {
     name: 'Dorito Toss',
-    sprite: 'powerup_dorito',
+    key: 'powerup_dorito',
+    sprite: 'dorito',
     apply: (player) => {
       player.canFireDoritos = true;
     },
@@ -33,7 +37,8 @@ export const POWERUPS = {
   },
   hotdog: {
     name: 'Hotdog Launcher',
-    sprite: 'powerup_hotdog',
+    key: 'powerup_hotdog',
+    sprite: 'hotdog',
     apply: (player) => {
       player.canFireHotdogs = true;
     },
@@ -44,7 +49,8 @@ export const POWERUPS = {
   },
   margarita: {
     name: 'Margarita',
-    sprite: 'powerup_margarita',
+    key: 'powerup_margarita',
+    sprite: 'margarita',
     apply: (player, scene) => {
       player.health = Math.min(100, player.health + 20);
       scene.updateHealthBars();

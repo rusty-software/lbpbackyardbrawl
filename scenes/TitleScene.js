@@ -3,11 +3,7 @@ export default class TitleScene extends Phaser.Scene {
     super('TitleScene');
   }
 
-  preload() {
-    this.load.image('splash', 'assets/title.png');
-    this.load.bitmapFont('peaberry', 'assets/fonts/peaberry.png', 'assets/fonts/peaberry.fnt');
-    this.load.audio('titleMusic', 'assets/audio/title-soundtrack.mp3');
-  }
+  preload() { }
 
   create() {
     this.music = this.sound.add('titleMusic', { loop: true });

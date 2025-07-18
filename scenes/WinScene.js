@@ -8,9 +8,7 @@ export default class WinScene extends Phaser.Scene {
     this.loser = data.loser;
   }
 
-  preload() {
-    this.load.audio('winMusic', 'assets/audio/win-soundtrack.mp3');
-  }
+  preload() { }
 
   create() {
     this.music = this.sound.add('winMusic', { loop: true });
@@ -38,6 +36,7 @@ export default class WinScene extends Phaser.Scene {
       this.music.stop();
       this.cameras.main.fadeOut(500, 0, 0, 0);
       this.time.delayedCall(500, () => {
+        this.scene.stop('LoadingScene');
         this.scene.stop('TitleScene');
         this.scene.stop('PlayerEntryScene');
         this.scene.stop('SelectScene');

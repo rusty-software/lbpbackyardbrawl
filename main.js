@@ -1,3 +1,4 @@
+import LoadingScene from './scenes/LoadingScene.js';
 import TitleScene from './scenes/TitleScene.js';
 import PlayerEntryScene from './scenes/PlayerEntryScene.js';
 import SelectScene from './scenes/SelectScene.js';
@@ -23,7 +24,7 @@ const config = {
     width: 800,
     height: 600
   },
-  scene: [TitleScene, PlayerEntryScene, SelectScene, MainScene, WinScene]
+  scene: [LoadingScene, TitleScene, PlayerEntryScene, SelectScene, MainScene, WinScene]
 }
 
 const game = new Phaser.Game(config);
