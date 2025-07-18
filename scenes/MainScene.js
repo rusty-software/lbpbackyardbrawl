@@ -119,13 +119,9 @@ export default class MainScene extends Phaser.Scene {
     player.health = 100;
     player.activePowerup = null;
     player.canUseSpecial = true;
-    player.healthBar = this.add.rectangle(
-      isPlayer2 ? 780 : 20,
-      20,
-      200,
-      20,
-      isPlayer2 ? 0x0000ff : 0xff0000
-    ).setOrigin(isPlayer2 ? 1 : 0, 0);
+    player.healthBar = this.add.graphics();
+    player.healthBar.isPlayer2 = isPlayer2;
+    player.healthBar.setDepth(5);
     player.healthBar.setScale(1, 1);
 
     return player;
@@ -146,6 +142,12 @@ export default class MainScene extends Phaser.Scene {
         if (!defender.invincible) {
           defender.health = Math.max(0, defender.health - attacker.character.strength);
           defender.setTint(0xff0000);
+          this.tweens.add({
+            targets: defender.healthBar,
+            alpha: { from: 1, to: 0.5 },
+            duration: 100,
+            yoyo: true
+          });
           this.time.delayedCall(100, () => defender.clearTint());
           this.updateHealthBars();
           if (defender.health <= 0) this.handleWin(attacker === this.player1 ? 1 : 2);
@@ -156,10 +158,30 @@ export default class MainScene extends Phaser.Scene {
     return state;
   }
 
+  updateHealthBar(bar, player, x, y) {
+    const width = 200;
+    const height = 16;
+    const pct = Phaser.Math.Clamp(player.health / 100, 0, 1);
+
+    bar.clear();
+
+    bar.fillStyle(0x222222, 1);
+    bar.fillRect(x, y, width, height);
+
+    let color = 0x00ff00;
+    if (pct < 0.5) color = 0xffff00;
+    if (pct < 0.25) color = 0xff0000;
+
+    bar.fillStyle(color, 1);
+    bar.fillRect(x, y, width * pct, height);
+
+    bar.lineStyle(2, 0xffffff);
+    bar.strokeRect(x, y, width, height);
+  }
 
   updateHealthBars() {
-    this.tweens.add({ targets: this.player1.healthBar, props: { scaleX: { value: this.player1.health / 100, duration: 150 } } });
-    this.tweens.add({ targets: this.player2.healthBar, props: { scaleX: { value: this.player2.health / 100, duration: 150 } } });
+    this.updateHealthBar(this.player1.healthBar, this.player1, 20, 20);
+    this.updateHealthBar(this.player2.healthBar, this.player2, 580, 20);
   }
 
   handleWin(winner) {
