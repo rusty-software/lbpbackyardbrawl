@@ -312,6 +312,46 @@ export default class MainScene extends Phaser.Scene {
       old.data.revert(player);
     }
 
+    if (data.soundKey) {
+      this.sound.play(data.soundKey);
+    }
+
+    const colors = [0xffffff, 0xffcc00, 0xff66cc];
+    const burstCount = 8;
+
+    for (let i = 0; i < burstCount; i++) {
+      const angle = Phaser.Math.DegToRad((360 / burstCount) * i);
+      const vx = Math.cos(angle) * 60;
+      const vy = Math.sin(angle) * 60;
+
+      const spark = this.add.circle(player.x, player.y, 4, data.color || Phaser.Utils.Array.GetRandom(colors));
+      this.tweens.add({
+        targets: spark,
+        x: player.x + vx,
+        y: player.y + vy,
+        alpha: 0,
+        duration: 400,
+        onComplete: () => spark.destroy()
+      });
+    }
+
+    const label = this.add.text(player.x, player.y - 40, data.name || 'Power Up!', {
+      fontFamily: 'Courier',
+      fontSize: '14px',
+      color: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 3
+    }).setOrigin(0.5);
+
+    this.tweens.add({
+      targets: label,
+      y: label.y - 20,
+      alpha: 0,
+      duration: 800,
+      ease: 'Power1',
+      onComplete: () => label.destroy()
+    });
+
     data.apply(player, this);
     player.setTint(0xffff00);
 
