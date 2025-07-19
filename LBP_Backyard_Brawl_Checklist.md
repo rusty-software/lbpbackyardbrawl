@@ -44,7 +44,7 @@
     - [X] Hot Dog Launcher (temporary ranged weapon)
     - [X] Dorito Toss (bouncing projectile)
 - [X] Create per-character special move (primarily ranged attacks, with cooldown or charge meter)
-- [ ] Implement visual/audio effects for ranged attacks (projectile spawn, travel, impact)
+- [X] Implement visual/audio effects for ranged attacks (projectile spawn, travel, impact)
 - [X] Add ranged attack hit detection and balancing (damage, speed, cooldown)
 - [X] Add at least 2 LBP-themed stages (pool, grill, game room)
 ~~- [ ] Add hazard logic (e.g. slippery tiles, fire spots)~~
@@ -57,8 +57,8 @@
 ## **PHASE 4: Polish, UI, and Miscellany**
 ### 🎯 Goal: Presentation, humor, and extras
 
-- [ ] Finalize HUD styling (animated bars, icons, meters)
-- [ ] Add pause & restart flow
+- [X] Finalize HUD styling (animated bars, icons, meters)
+- [X] Add pause & restart flow
 - [ ] Add taunt button (funny character quotes or animations)
 - [X] Add intro screen
 - [X] Add audio (character sounds, sfx, theme music)
