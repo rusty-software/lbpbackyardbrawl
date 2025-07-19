@@ -61,11 +61,10 @@ export const CHARACTERS = {
     special: (scene, player) => {
       const proj = scene.fireProjectile(player, 'proj_mandown', 200, 4);
       proj.onHitEffect = (victim) => {
-        victim.setTint(0x999999);
+        scene.tintEffect(victim, 0x999999, 750);
         victim.body.enable = false;
         scene.time.delayedCall(750, () => {
           victim.body.enable = true;
-          victim.clearTint();
         });
       };
     }
@@ -134,11 +133,10 @@ export const CHARACTERS = {
       const proj = scene.fireProjectile(player, 'proj_roboclamp', 180, 5);
       proj.setTint(0x00ccff);
       proj.onHitEffect = (victim) => {
-        victim.setTint(0x00ccff);
+        scene.tintEffect(victim, 0x00ccff, 750);
         victim.body.enable = false;
         scene.time.delayedCall(750, () => {
           victim.body.enable = true;
-          victim.clearTint();
         });
       };
     }
@@ -182,11 +180,10 @@ export const CHARACTERS = {
       const proj = scene.fireProjectile(player, 'proj_hdmicoil', 180, 4);
       proj.setTint(0x3366ff);
       proj.onHitEffect = (victim) => {
-        victim.setTint(0x3366ff);
+        scene.tintEffect(victim, 0x3366ff, 1000);
         victim.body.enable = false;
         scene.time.delayedCall(1000, () => {
           victim.body.enable = true;
-          victim.clearTint();
         });
       };
     }
@@ -217,11 +214,10 @@ export const CHARACTERS = {
       const proj = scene.fireProjectile(player, 'proj_rocketship', 200, 5);
       proj.setTint(0x663300);
       proj.onHitEffect = (victim) => {
-        victim.setTint(0x663300);
+        scene.tintEffect(victim, 0x663300, 750);
         victim.body.enable = false;
         scene.time.delayedCall(750, () => {
           victim.body.enable = true;
-          victim.clearTint();
         });
       };
     }
@@ -238,11 +234,10 @@ export const CHARACTERS = {
       const proj = scene.fireProjectile(player, 'proj_envelope', 180, 4);
       proj.setTint(0xffffff);
       proj.onHitEffect = (victim) => {
-        victim.setTint(0xffffff);
+        scene.tintEffect(victim, 0xffffff, 3000);
         victim.canUseSpecial = false;
         scene.time.delayedCall(3000, () => {
           victim.canUseSpecial = true;
-          victim.clearTint();
         });
       };
     }

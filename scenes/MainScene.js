@@ -119,8 +119,9 @@ export default class MainScene extends Phaser.Scene {
           if (!victim.invincible && victim.active) {
             victim.health = Math.max(0, victim.health - damagePerTick);
             this.updateHealthBars();
-            victim.setTint(0x00ff00);
-            this.time.delayedCall(150, () => victim.clearTint());
+            this.tintEffect(victim, 0x00ff00, 150);
+            // victim.setTint(0x00ff00);
+            // this.time.delayedCall(150, () => victim.clearTint());
             if (victim.health <= 0) {
               poison.remove();
               this.handleWin(victim === this.player1 ? 2 : 1);
@@ -164,14 +165,13 @@ export default class MainScene extends Phaser.Scene {
         state.hitLanded = true;
         if (!defender.invincible) {
           defender.health = Math.max(0, defender.health - attacker.character.strength);
-          defender.setTint(0xff0000);
+          this.tintEffect(defender, 0xff0000, 100);
           this.tweens.add({
             targets: defender.healthBar,
             alpha: { from: 1, to: 0.5 },
             duration: 100,
             yoyo: true
           });
-          this.time.delayedCall(100, () => defender.clearTint());
           this.updateHealthBars();
           if (defender.health <= 0) this.handleWin(attacker === this.player1 ? 1 : 2);
         }
@@ -436,8 +436,7 @@ export default class MainScene extends Phaser.Scene {
 
         victim.health = Math.max(0, victim.health - damage);
         this.updateHealthBars();
-        victim.setTint(0xff0000);
-        this.time.delayedCall(100, () => victim.clearTint());
+        this.tintEffect(victim, 0xff0000, 100);
 
         if (proj.onHitEffect) {
           proj.onHitEffect(victim);
@@ -454,6 +453,23 @@ export default class MainScene extends Phaser.Scene {
 
     return projectile;
   }
+
+  tintEffect(target, color, duration = 200) {
+    if (!target || !target.setTint) return;
+
+    const existingTint = target.tintTopLeft;
+
+    if (existingTint !== color) {
+      target.setTint(color);
+    }
+
+    this.time.delayedCall(duration, () => {
+      if (target.tintTopLeft === color) {
+        target.clearTint();
+      }
+    });
+  }
+
 
   handleSpecialProjectile(player) {
     if (Phaser.Input.Keyboard.JustDown(player.controls.special) && player.canUseSpecial) {
