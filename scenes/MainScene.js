@@ -27,6 +27,13 @@ export default class MainScene extends Phaser.Scene {
     this.music = this.sound.add(stage.music, { loop: true, volume: 0.6 });
     this.music.play();
 
+    this.powerupSounds = {};
+    for (const [powerupKey, powerup] of Object.entries(POWERUPS)) {
+      if (powerup.sound) {
+        this.powerupSounds[powerupKey] = this.sound.add(powerup.sound);
+      }
+    }
+
     const bannerText = this.add.text(400, 300, stage.displayName || 'Get Ready!', {
       fontSize: '32px',
       fontFamily: 'Courier',
@@ -279,6 +286,20 @@ export default class MainScene extends Phaser.Scene {
       .setData('type', type)
       .setData('applied', false);
 
+    const glow = this.add.sprite(x, y, def.key);
+    glow.setTint(0xffffff);
+    glow.setAlpha(0.5);
+    glow.setScale(1.2); // slightly larger
+    glow.setDepth(powerup.depth - 1);
+
+    this.tweens.add({
+      targets: glow,
+      alpha: { from: 0.3, to: 0.7 },
+      duration: 800,
+      yoyo: true,
+      repeat: -1
+    });
+
     powerup.body.setAllowGravity(false);
     powerup.body.setImmovable(true);
     powerup.body.setEnable(true);
@@ -292,14 +313,21 @@ export default class MainScene extends Phaser.Scene {
 
         if (!data) return;
 
+        if (this.powerupSounds[data.sound]) {
+          this.powerupSounds[data.sound].play();
+        }
         this.applyPowerupToPlayer(plyr, data);
         pwr.destroy();
+        glow.destroy();
       });
 
     });
 
     this.time.delayedCall(8000, () => {
-      if (powerup.active) powerup.destroy();
+      if (powerup.active) {
+        powerup.destroy();
+        glow.destroy();
+      }
     });
   }
 
@@ -328,7 +356,7 @@ export default class MainScene extends Phaser.Scene {
         x: player.x + vx,
         y: player.y + vy,
         alpha: 0,
-        duration: 400,
+        duration: 500,
         onComplete: () => spark.destroy()
       });
     }
@@ -345,7 +373,7 @@ export default class MainScene extends Phaser.Scene {
       targets: label,
       y: label.y - 20,
       alpha: 0,
-      duration: 800,
+      duration: 1000,
       ease: 'Power1',
       onComplete: () => label.destroy()
     });

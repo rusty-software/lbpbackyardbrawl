@@ -53,6 +53,7 @@ export default class LoadingScene extends Phaser.Scene {
     this.load.image('platform', 'assets/platform.png');
     Object.values(POWERUPS).forEach(pu => {
       this.load.image(pu.key, `assets/powerups/${pu.sprite}.png`);
+      this.load.audio(pu.sound, `assets/audio/${pu.sound}.mp3`);
     });
 
     ['book', 'brokenheartking', 'cookiedough', 'dorito', 'envelope',

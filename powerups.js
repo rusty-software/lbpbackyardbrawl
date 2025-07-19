@@ -3,6 +3,7 @@ export const POWERUPS = {
     name: 'Brisket Boost',
     key: 'powerup_brisket',
     sprite: 'brisket',
+    sound: 'brisket',
     apply: (player) => { player.character.strength += 10; },
     revert: (player) => { player.character.strength -= 10; },
     duration: 5000
@@ -11,6 +12,7 @@ export const POWERUPS = {
     name: 'Jalapeño Popper',
     key: 'powerup_popper',
     sprite: 'popper',
+    sound: 'popper',
     apply: (player) => { player.character.speed += 50; },
     revert: (player) => { player.character.speed -= 50; },
     duration: 5000
@@ -19,6 +21,7 @@ export const POWERUPS = {
     name: 'Poker Chip Shield',
     key: 'powerup_shield',
     sprite: 'shield',
+    sound: 'shield',
     apply: (player) => { player.invincible = true; },
     revert: (player) => { player.invincible = false; },
     duration: 4000
@@ -27,6 +30,7 @@ export const POWERUPS = {
     name: 'Dorito Toss',
     key: 'powerup_dorito',
     sprite: 'dorito',
+    sound: 'dorito',
     apply: (player) => {
       player.canFireDoritos = true;
     },
@@ -39,6 +43,7 @@ export const POWERUPS = {
     name: 'Hotdog Launcher',
     key: 'powerup_hotdog',
     sprite: 'hotdog',
+    sound: 'hotdog',
     apply: (player) => {
       player.canFireHotdogs = true;
     },
@@ -51,6 +56,7 @@ export const POWERUPS = {
     name: 'Margarita',
     key: 'powerup_margarita',
     sprite: 'margarita',
+    sound: 'margarita',
     apply: (player, scene) => {
       player.health = Math.min(100, player.health + 20);
       scene.updateHealthBars();
