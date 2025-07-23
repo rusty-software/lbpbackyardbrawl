@@ -1,5 +1,6 @@
 import { STAGES } from '../stages.js';
 import { POWERUPS } from '../powerups.js';
+import HumanPlayerController from '../classes/HumanPlayerController.js';
 
 export default class MainScene extends Phaser.Scene {
   constructor() {
@@ -18,6 +19,7 @@ export default class MainScene extends Phaser.Scene {
   create() {
     this.gameOver = false;
     this.attackDuration = 150;
+    this.controllers = [];
 
     const stage = Phaser.Utils.Array.GetRandom(STAGES);
     this.currentStage = stage;
@@ -108,6 +110,9 @@ export default class MainScene extends Phaser.Scene {
 
     this.player1.combat = this.setupAttack(this.player1, this.player2, 0xffff00);
     this.player2.combat = this.setupAttack(this.player2, this.player1, 0xff00ff);
+
+    this.controllers.push(new HumanPlayerController(this, this.player1, this.p1Controls));
+    this.controllers.push(new HumanPlayerController(this, this.player2, this.p2Controls));
 
     this.projectiles = this.physics.add.group();
 
@@ -245,10 +250,9 @@ export default class MainScene extends Phaser.Scene {
   }
 
   handleAttack(player) {
-    const { attack, special } = player.controls;
     const { canAttack, hitbox } = player.combat;
 
-    if (Phaser.Input.Keyboard.JustDown(attack) && canAttack) {
+    if (canAttack) {
       player.combat.canAttack = false;
       player.combat.hitLanded = false;
 
@@ -500,22 +504,22 @@ export default class MainScene extends Phaser.Scene {
 
 
   handleSpecialProjectile(player) {
-    if (Phaser.Input.Keyboard.JustDown(player.controls.special) && player.canUseSpecial) {
-      player.canUseSpecial = false;
+    if (!player.canUseSpecial) return;
 
-      if (player.canFireHotdogs) {
-        this.fireProjectile(player, 'proj_hotdog', 300, 10);
-      } else if (player.canFireDoritos) {
-        const proj = this.fireProjectile(player, 'proj_dorito', 200, 6);
-        proj.setCollideWorldBounds(true).setBounce(1);
-      } else if (player.character.special) {
-        player.character.special(this, player);
-      }
+    player.canUseSpecial = false;
 
-      this.time.delayedCall(player.character.cooldown || 1000, () => {
-        player.canUseSpecial = true;
-      });
+    if (player.canFireHotdogs) {
+      this.fireProjectile(player, 'proj_hotdog', 300, 10);
+    } else if (player.canFireDoritos) {
+      const proj = this.fireProjectile(player, 'proj_dorito', 200, 6);
+      proj.setCollideWorldBounds(true).setBounce(1);
+    } else if (player.character.special) {
+      player.character.special(this, player);
     }
+
+    this.time.delayedCall(player.character.cooldown || 1000, () => {
+      player.canUseSpecial = true;
+    });
   }
 
   updateSpecialBar(bar, player) {
@@ -547,15 +551,13 @@ export default class MainScene extends Phaser.Scene {
 
   update() {
     if (this.gameOver) return;
-    this.updateSpecialBars();
 
-    [this.player1, this.player2].forEach(player => {
-      this.setVelocity(player)
-      this.handleSpecialProjectile(player);
-    });
+    this.updateSpecialBars();
     this.setDirection(this.player1, this.player2);
     this.setDirection(this.player2, this.player1);
-    this.handleAttack(this.player1);
-    this.handleAttack(this.player2);
+
+    for (const controller of this.controllers) {
+      controller.update();
+    }
   }
 }
