@@ -19,6 +19,8 @@ export default class MainScene extends Phaser.Scene {
   create() {
     this.gameOver = false;
     this.attackDuration = 150;
+    this.blockMaxDuration = 1000;
+    this.blockCooldownTime = 1500;
     this.controllers = [];
 
     const stage = Phaser.Utils.Array.GetRandom(STAGES);
@@ -99,12 +101,12 @@ export default class MainScene extends Phaser.Scene {
       special: 'E'
     });
     this.p2Controls = this.input.keyboard.addKeys({
-      left: 'LEFT',
-      right: 'RIGHT',
-      up: 'UP',
-      block: 'DOWN',
-      attack: 'FORWARD_SLASH',
-      special: 'SHIFT'
+      left: 'L',
+      right: 'QUOTES',
+      up: 'P',
+      block: 'SEMICOLON',
+      attack: 'K',
+      special: 'O'
     });
 
     this.player1 = this.createPlayer(200, 400, this.p1Character, this.p1Controls, false);
@@ -154,6 +156,8 @@ export default class MainScene extends Phaser.Scene {
     player.controls = controls;
     player.health = 100;
     player.blocking = false;
+    player.blockCooldown = false;
+    player.blockTimer = null;
     player.activePowerup = null;
     player.canUseSpecial = true;
     player.healthBar = this.add.graphics();

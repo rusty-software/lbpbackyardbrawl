@@ -75,7 +75,7 @@ export default class SelectScene extends Phaser.Scene {
           const p1Key = this.characterKeys[this.p1Index];
           this.p1Sprite.setTexture(p1Key);
           this.p1Name.setText(`${this.p1NameInitials}: ${CHARACTERS[p1Key].name}`);
-          this.p1Controls.setText(`${this.p1NameInitials} Controls:\nMove: A/D\nJump: W\nAttack: F\nSpecial: E`);
+          this.p1Controls.setText(`${this.p1NameInitials} Controls:\nMove: A/D\nJump: W\nBlock: S\nAttack: F\nSpecial: E`);
           this.p1Special.setText(`Special: ${CHARACTERS[p1Key].specialName || '—'}`);
 
           this.p2Sprite.setVisible(false);
@@ -86,8 +86,8 @@ export default class SelectScene extends Phaser.Scene {
           const p2Key = this.availableForP2[this.p2Index];
           this.p2Sprite.setTexture(p2Key);
           this.p2Name.setText(`${this.p2NameInitials}: ${CHARACTERS[p2Key].name}`);
-          this.p2Controls.setText(`${this.p2NameInitials} Controls:\nMove: ←/→\nJump: ↑\nAttack: \\\nSpecial: SHIFT`);
-          this.p2Special.setText(`Special: ${CHARACTERS[p2Key].specialName || '—'}`);
+          this.p2Controls.setText(`${this.p2NameInitials} Controls:\nMove: L/'\nJump: P\nBlock: ;\nAttack: K\nSpecial: O`);
+          this.p2Special.setText(`Special Attack: ${CHARACTERS[p2Key].specialName || '—'}`);
 
           this.p1Sprite.setTexture(this.p1CharacterKey);
           this.p2Sprite.setVisible(true);
