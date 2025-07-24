@@ -7,7 +7,9 @@ export default class HumanPlayerController extends PlayerController {
   }
 
   update() {
-    const { left, right, up, attack, special } = this.keys;
+    const { left, right, up, block, attack, special } = this.keys;
+
+    this.player.blocking = block.isDown;
 
     if (left.isDown) this.player.setVelocityX(-this.player.character.speed);
     else if (right.isDown) this.player.setVelocityX(this.player.character.speed);

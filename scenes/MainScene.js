@@ -94,6 +94,7 @@ export default class MainScene extends Phaser.Scene {
       left: 'A',
       right: 'D',
       up: 'W',
+      block: 'S',
       attack: 'F',
       special: 'E'
     });
@@ -101,6 +102,7 @@ export default class MainScene extends Phaser.Scene {
       left: 'LEFT',
       right: 'RIGHT',
       up: 'UP',
+      block: 'DOWN',
       attack: 'FORWARD_SLASH',
       special: 'SHIFT'
     });
@@ -132,8 +134,6 @@ export default class MainScene extends Phaser.Scene {
             victim.health = Math.max(0, victim.health - damagePerTick);
             this.updateHealthBars();
             this.tintEffect(victim, 0x00ff00, 150);
-            // victim.setTint(0x00ff00);
-            // this.time.delayedCall(150, () => victim.clearTint());
             if (victim.health <= 0) {
               poison.remove();
               this.handleWin(victim === this.player1 ? 2 : 1);
@@ -153,6 +153,7 @@ export default class MainScene extends Phaser.Scene {
     player.character = characterData;
     player.controls = controls;
     player.health = 100;
+    player.blocking = false;
     player.activePowerup = null;
     player.canUseSpecial = true;
     player.healthBar = this.add.graphics();
@@ -161,6 +162,22 @@ export default class MainScene extends Phaser.Scene {
     player.healthBar.setScale(1, 1);
 
     return player;
+  }
+
+  showBlockEffect(defender) {
+    const flash = this.add.rectangle(defender.x, defender.y, 20, 20, 0x66ccff)
+      .setOrigin(0.5)
+      .setAlpha(0.8)
+      .setDepth(20);
+
+    this.tweens.add({
+      targets: flash,
+      scaleX: 2,
+      scaleY: 2,
+      alpha: 0,
+      duration: 200,
+      onComplete: () => flash.destroy()
+    });
   }
 
   setupAttack(attacker, defender, color) {
@@ -176,16 +193,21 @@ export default class MainScene extends Phaser.Scene {
       if (!state.hitLanded) {
         state.hitLanded = true;
         if (!defender.invincible) {
-          defender.health = Math.max(0, defender.health - attacker.character.strength);
-          this.tintEffect(defender, 0xff0000, 100);
-          this.tweens.add({
-            targets: defender.healthBar,
-            alpha: { from: 1, to: 0.5 },
-            duration: 100,
-            yoyo: true
-          });
-          this.updateHealthBars();
-          if (defender.health <= 0) this.handleWin(attacker === this.player1 ? 1 : 2);
+          if (defender.blocking) {
+            this.showBlockEffect(defender);
+          } else {
+            defender.health = Math.max(0, defender.health - attacker.character.strength);
+            this.tintEffect(defender, 0xff0000, 100);
+            this.tweens.add({
+              targets: defender.healthBar,
+              alpha: { from: 1, to: 0.5 },
+              duration: 100,
+              yoyo: true
+            });
+            this.updateHealthBars();
+            if (defender.health <= 0) this.handleWin(attacker === this.player1 ? 1 : 2);
+
+          }
         }
       }
     });
