@@ -72,6 +72,7 @@
 
 
 ## **OPTIONAL PHASE 5: Basic AI & Single-Player**
+
 ### 🎯 Goal: Play solo against a computer opponent
 
 - [ ] Create AI player entity with basic patrol/attack behavior
